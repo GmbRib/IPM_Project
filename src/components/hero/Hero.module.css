@@ -4,12 +4,12 @@
  * Stage: 124u wide (max) × 62u tall. The scene (figures + signal) is the
  * bottom 41u; fingertips sit ~30.6u in from each side, 11.4u from its top.
  */
+/* The hero is as tall as the illustration: no forced full-screen height. */
 .hero {
   position: relative;
-  min-height: calc(100svh - var(--header-h));
   display: grid;
   place-items: center;
-  padding: 2rem var(--gutter) 0;
+  padding: clamp(2rem, 6vw, 4.5rem) var(--gutter) 0;
   overflow: hidden;
   background: linear-gradient(90deg, var(--human-tint) 0%, var(--bg) 42%, var(--bg) 58%, var(--machine-tint) 100%);
 }
@@ -40,6 +40,8 @@
   right: 0;
   bottom: 0;
   height: 41em;
+  /* Nothing shows below the floor (e.g. a knocked-out figure's arm) */
+  clip-path: inset(-100vh -100vw 0 -100vw);
 }
 
 .person {
@@ -148,6 +150,219 @@
   font-size: 1rem;
 }
 
+/* ---------- Fight ---------- */
+
+/* Click targets laid over each figure */
+.fighter {
+  position: absolute;
+  bottom: 0;
+  width: 22em;
+  height: 41em;
+  padding: 0;
+  border: 0;
+  font-size: inherit; /* keep em = --u, buttons don't inherit by default */
+  background: transparent;
+  cursor: pointer;
+  border-radius: 3em;
+  z-index: 2;
+}
+
+.fighterHuman {
+  left: 2em;
+}
+
+.fighterMachine {
+  right: 2em;
+}
+
+.fighter:disabled {
+  cursor: default;
+}
+
+.fighterHint {
+  position: absolute;
+  top: -1em;
+  left: 50%;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font: 700 0.72rem/1 var(--font-body);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  translate: -50% 0.5rem;
+  transition:
+    opacity 200ms ease,
+    translate 200ms ease;
+  pointer-events: none;
+}
+
+.fighterHuman .fighterHint {
+  background: var(--human);
+}
+
+.fighterMachine .fighterHint {
+  background: var(--machine);
+}
+
+.fighter:not(:disabled):hover .fighterHint,
+.fighter:focus-visible .fighterHint {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+.lane {
+  position: absolute;
+  top: 11.4em;
+  left: 30.6em;
+  right: 30.6em;
+  height: 0;
+  z-index: 1;
+}
+
+/* Pessoa: a warm shockwave that flies right */
+.punch {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4.5em;
+  height: 4.5em;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 20%, #ffb08a 35%, var(--human) 60%, transparent 72%);
+  animation: fly 380ms cubic-bezier(0.5, 0, 0.9, 0.6) forwards;
+}
+
+@keyframes fly {
+  from { left: 0%; scale: 0.4; }
+  to { left: 100%; scale: 1.3; }
+}
+
+/* Máquina: a laser beam that grows from its finger to the person */
+.laser {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0.9em;
+  translate: 0 -50%;
+  border-radius: 1em;
+  background: linear-gradient(0deg, var(--machine) 0%, #fff 50%, var(--machine) 100%);
+  box-shadow: 0 0 1.2em var(--machine-glow);
+  transform-origin: right;
+  animation: beam 520ms ease-out forwards;
+}
+
+@keyframes beam {
+  0% { scale: 0 1; opacity: 1; }
+  70% { scale: 1 1; opacity: 1; }
+  100% { scale: 1 0.2; opacity: 0; }
+}
+
+/* Pops up above the target's outstretched arm, clear of the title */
+.damage {
+  position: absolute;
+  top: 3em;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-display);
+  font-size: 4.2em;
+  line-height: 1;
+  pointer-events: none;
+  animation: floatUp 900ms ease-out forwards;
+}
+
+.damage small {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.28em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.damageHuman {
+  left: 20em;
+  color: var(--human);
+}
+
+.damageMachine {
+  right: 20em;
+  color: var(--machine);
+}
+
+@keyframes floatUp {
+  0% { translate: 0 1em; opacity: 0; scale: 0.6; }
+  20% { translate: 0 0; opacity: 1; scale: 1.15; }
+  100% { translate: 0 -2.5em; opacity: 0; scale: 1; }
+}
+
+/* During a fight the idle signal line calms down */
+.stage:has(.lane) .signal,
+.stage[data-ko] .signal,
+.stage[data-ko] .spark {
+  opacity: 0.25;
+}
+
+.ko {
+  position: absolute;
+  top: 3em;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.75rem 1.5rem;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow: 0 20px 40px -24px rgba(28, 26, 33, 0.5);
+  font-size: 1rem;
+  text-align: center;
+  animation: koIn 500ms cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.koTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 0.9;
+  background: linear-gradient(90deg, var(--human), var(--machine));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.koText {
+  margin: 0;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+@keyframes koIn {
+  from { scale: 0.4; opacity: 0; }
+  to { scale: 1; opacity: 1; }
+}
+
+.stage[data-ko] .actions {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+
 @media (max-width: 720px) {
   .hero {
     min-height: auto;
@@ -192,6 +407,16 @@
 
   .actions {
     order: 4;
+  }
+
+  .ko {
+    top: 50%;
+    translate: -50% -50%;
+    padding: 1rem 1.25rem 1.25rem;
+  }
+
+  .fighterHint {
+    display: none;
   }
 
   .actions :global(.btn) {

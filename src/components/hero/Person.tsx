@@ -2,9 +2,11 @@ import { useRef } from "react";
 import { useLookAt } from "../../hooks/useLookAt";
 import s from "./Figures.module.css";
 
-type Props = { className?: string; reaching?: boolean };
+export type Pose = "attack" | "hit" | "ko";
 
-export function Person({ className, reaching }: Props) {
+type Props = { className?: string; reaching?: boolean; pose?: Pose | null };
+
+export function Person({ className, reaching, pose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   useLookAt(ref);
 
@@ -12,7 +14,7 @@ export function Person({ className, reaching }: Props) {
     <div
       ref={ref}
       aria-hidden="true"
-      className={[s.figure, s.person, reaching && s.reaching, className].filter(Boolean).join(" ")}
+      className={[s.figure, s.person, reaching && s.reaching, pose && s[pose], className].filter(Boolean).join(" ")}
     >
       <div className={s.pBackArm} />
       <div className={`${s.pLeg} ${s.pLegL}`} />

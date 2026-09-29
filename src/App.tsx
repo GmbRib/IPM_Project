@@ -5,10 +5,11 @@ import { Team } from "./components/sections/Team";
 import { Reports } from "./components/sections/Reports";
 import { Development } from "./components/sections/Development";
 import { Footer } from "./components/Footer";
+import { FightProvider } from "./fight/FightContext";
 
 export function App() {
   return (
-    <>
+    <FightProvider>
       <Header />
       <main>
         <Hero />
@@ -18,6 +19,6 @@ export function App() {
         <Development />
       </main>
       <Footer />
-    </>
+    </FightProvider>
   );
 }

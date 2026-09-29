@@ -438,3 +438,114 @@
   background: var(--metal-2);
   border-radius: 0.45em;
 }
+
+/* ---------- Fight poses ---------- */
+
+/* Attacker: lean back, then snap forward */
+.person.attack {
+  animation: lungeRight 520ms cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.robot.attack {
+  animation: lungeLeft 520ms cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.person.attack .pArm {
+  animation: punch 520ms cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.robot.attack .rArm {
+  animation: aim 520ms cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.robot.attack .rVisor > .rEye {
+  background: #ff5a5a;
+  box-shadow: 0 0 1em #ff5a5a;
+}
+
+@keyframes lungeRight {
+  30% { translate: -1.2em 0; }
+  60% { translate: 2.2em 0; }
+}
+
+@keyframes lungeLeft {
+  30% { translate: 1.2em 0; }
+  60% { translate: -2.2em 0; }
+}
+
+@keyframes punch {
+  30% { rotate: 8deg; }
+  60% { rotate: -8deg; }
+}
+
+@keyframes aim {
+  30% { rotate: -6deg; }
+  60% { rotate: 6deg; }
+}
+
+/* Target: shake and flash */
+.hit {
+  animation:
+    shake 420ms linear,
+    hurt 420ms ease-out;
+}
+
+@keyframes shake {
+  15% { translate: -1.2em 0; }
+  35% { translate: 1em 0; }
+  55% { translate: -0.7em 0; }
+  75% { translate: 0.4em 0; }
+}
+
+@keyframes hurt {
+  0%, 40% { filter: brightness(1.8) saturate(0.4); }
+  100% { filter: none; }
+}
+
+.person.hit .pEye {
+  scale: 1 0.15;
+}
+
+.robot.hit .rVisor > .rEye {
+  background: #ff5a5a;
+  box-shadow: 0 0 1em #ff5a5a;
+  scale: 1 0.3;
+}
+
+/*
+ * Knocked out: fall forward onto the floor, towards the middle, and stay down.
+ * Pivot on the feet, then lift just enough that the torso rests on the floor
+ * (the outstretched arm ends up below it, hidden by the hero's overflow).
+ */
+.ko {
+  transform-origin: 50% 100%;
+  transition:
+    rotate 650ms cubic-bezier(0.5, 0, 0.75, 0),
+    translate 650ms cubic-bezier(0.5, 0, 0.75, 0),
+    filter 650ms ease;
+  filter: grayscale(0.7);
+}
+
+.person.ko {
+  rotate: 90deg;
+  translate: 0 -2.5em;
+}
+
+.robot.ko {
+  rotate: -90deg;
+  translate: 0 -5em;
+}
+
+.person.ko .pEye,
+.robot.ko .rVisor > .rEye {
+  scale: 1 0.12;
+  animation: none;
+}
+
+.robot.ko .rAntenna::after,
+.robot.ko .rCore,
+.robot.ko .rPanel > .rLight {
+  animation: none;
+  background: var(--metal-3);
+  box-shadow: none;
+}

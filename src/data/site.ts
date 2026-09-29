@@ -19,11 +19,14 @@ export type Stage = {
   available: boolean;
 };
 
-export const navLinks = [
-  { href: "#quem-somos", label: "Quem Somos" },
-  { href: "#equipa", label: "Equipa" },
-  { href: "#reports", label: "Reports" },
-  { href: "#development", label: "Development" },
+export type Side = "human" | "machine";
+
+/** Split between the navbar's Pessoa (left) and Máquina (right) sides. */
+export const navLinks: { id: string; label: string; side: Side }[] = [
+  { id: "quem-somos", label: "Quem Somos", side: "human" },
+  { id: "equipa", label: "Equipa", side: "human" },
+  { id: "reports", label: "Reports", side: "machine" },
+  { id: "development", label: "Development", side: "machine" },
 ];
 
 export const appHref = "./client/";
@@ -33,8 +36,6 @@ export const members: Member[] = [
     name: "Dinis Santos",
     number: "72815",
     photo: "/members/Dinis.jpeg",
-    photoZoom: 1.45,
-    photoPosition: "50% 30%",
   },
   {
     name: "Guilherme Ribeiro",
