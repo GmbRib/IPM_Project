@@ -1,0 +1,108 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--header-h);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+
+.inner {
+  max-width: var(--content);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.group {
+  color: var(--machine);
+}
+
+/* Two overlapping dots: pessoa + máquina */
+.mark {
+  position: relative;
+  width: 30px;
+  height: 20px;
+}
+
+.mark::before,
+.mark::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.mark::before {
+  left: 0;
+  background: var(--human);
+}
+
+.mark::after {
+  right: 0;
+  background: var(--machine);
+  mix-blend-mode: multiply;
+}
+
+.nav {
+  display: flex;
+  gap: 1.5rem;
+  margin-left: auto;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.nav a {
+  text-decoration: none;
+  position: relative;
+  padding: 0.25rem 0;
+}
+
+.nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--human);
+  scale: 0 1;
+  transform-origin: left;
+  transition: scale 200ms ease;
+}
+
+.nav a:hover::after {
+  scale: 1 1;
+}
+
+.cta {
+  padding: 0.6em 1.1em;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 860px) {
+  .nav {
+    display: none;
+  }
+
+  .cta {
+    margin-left: auto;
+  }
+}

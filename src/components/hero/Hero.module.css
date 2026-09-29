@@ -1,0 +1,201 @@
+/*
+ * The stage is one composition measured in --u, so the figures, the title
+ * and the signal line between the fingertips scale together.
+ * Stage: 124u wide (max) × 62u tall. The scene (figures + signal) is the
+ * bottom 41u; fingertips sit ~30.6u in from each side, 11.4u from its top.
+ */
+.hero {
+  position: relative;
+  min-height: calc(100svh - var(--header-h));
+  display: grid;
+  place-items: center;
+  padding: 2rem var(--gutter) 0;
+  overflow: hidden;
+  background: linear-gradient(90deg, var(--human-tint) 0%, var(--bg) 42%, var(--bg) 58%, var(--machine-tint) 100%);
+}
+
+/* Floor */
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+}
+
+.stage {
+  --u: clamp(5px, 0.9vw, 11px);
+  font-size: var(--u);
+  position: relative;
+  width: min(100%, 124em);
+  height: 62em;
+  align-self: end;
+}
+
+.scene {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 41em;
+}
+
+.person {
+  left: 0;
+}
+
+.robot {
+  right: 0;
+}
+
+.title {
+  position: absolute;
+  top: 1em;
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 8.4em;
+  line-height: 0.98;
+  letter-spacing: 0.01em;
+  cursor: default;
+}
+
+.line {
+  display: block;
+}
+
+.pessoa {
+  color: var(--human);
+}
+
+.maquina {
+  color: var(--machine);
+}
+
+.signal {
+  position: absolute;
+  top: 11.4em;
+  left: 30.6em;
+  right: 30.6em;
+  height: 0.7em;
+  translate: 0 -50%;
+  background: linear-gradient(90deg, var(--human), var(--machine));
+  mask: radial-gradient(circle, #000 45%, transparent 52%) 0 50% / 1.6em 0.7em repeat-x;
+  animation: flow 1.2s linear infinite;
+  transition: left 700ms cubic-bezier(0.2, 0.8, 0.2, 1), right 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.spark {
+  position: absolute;
+  top: 11.4em;
+  left: 50%;
+  width: 3em;
+  height: 3em;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(#fff 0 18%, var(--machine-glow) 30%, transparent 70%);
+  animation: glow 2.4s ease-in-out infinite;
+}
+
+.stage[data-connected] .signal {
+  left: 32em;
+  right: 32em;
+  animation-duration: 0.35s;
+}
+
+.stage[data-connected] .spark {
+  width: 5em;
+  height: 5em;
+}
+
+@keyframes flow {
+  to {
+    mask-position: 1.6em 50%;
+  }
+}
+
+@keyframes glow {
+  0%, 100% { opacity: 0.55; scale: 0.85; }
+  50% { opacity: 1; scale: 1.1; }
+}
+
+.caption {
+  position: absolute;
+  top: calc(var(--u) * 35.6);
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  font-size: clamp(0.7rem, 0.4rem + 0.6vw, 0.95rem);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.actions {
+  position: absolute;
+  top: calc(var(--u) * 40);
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  gap: 0.75rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 720px) {
+  .hero {
+    min-height: auto;
+    padding: 2.5rem var(--gutter) 2rem;
+  }
+
+  /* Phones: title, caption and buttons flow normally around the scene. */
+  .stage {
+    --u: 5px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .title,
+  .caption,
+  .actions,
+  .scene {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    translate: none;
+  }
+
+  .title {
+    order: 1;
+    font-size: clamp(2.6rem, 14vw, 3.75rem);
+  }
+
+  .caption {
+    order: 2;
+  }
+
+  .scene {
+    order: 3;
+    width: 100%;
+  }
+
+  .actions {
+    order: 4;
+  }
+
+  .actions :global(.btn) {
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+}
