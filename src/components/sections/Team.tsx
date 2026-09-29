@@ -15,7 +15,7 @@ export function Team() {
       id="equipa"
       index="02"
       title="Equipa"
-      intro="As pessoas por detrás da máquina. Passa por cima de cada cartão para nos conheceres."
+      intro="As pessoas por detrás desta máquina. Passa por cima de cada cartão para nos conheceres."
     >
       <div className={s.grid}>
         {members.map((member) => (

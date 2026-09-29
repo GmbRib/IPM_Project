@@ -10,11 +10,11 @@ export function About() {
           {/* TODO: substituir pelo texto do grupo */}
           <p>
             Somos o Grupo 03 da unidade curricular de Interação Pessoa-Máquina. Este site reúne o trabalho que
-            fazemos ao longo do semestre: os assignments individuais, os relatórios de cada etapa do projeto e
+            fazemos ao longo do semestre: os relatórios de cada etapa do projeto e, ainda,
             o protótipo que estamos a desenvolver.
           </p>
           <p>
-            O nosso foco é o ponto de contacto entre as pessoas e a tecnologia: perceber quem usa, desenhar para
+            O nosso foco é o ponto de contacto entre as pessoas e a tecnologia. Perceber quem usa, desenhar para
             essas pessoas e testar com elas.
           </p>
         </div>
