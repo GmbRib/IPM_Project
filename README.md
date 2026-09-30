@@ -51,6 +51,7 @@ npm run preview  # serve the built dist/ locally
 ├── public/                    # served as-is at the site root (/reports/..., /members/...)
 │   ├── reports/               # 📄 all report PDFs, plus previews/ (generated images)
 │   ├── members/               # team photos used in the Equipa section
+│   ├── logo/                  # the logo's versions, in order (logo-v1.jpg … logo-v4.jpg)
 │   └── img/                   # logo and other images
 │
 ├── scripts/
@@ -61,7 +62,7 @@ npm run preview  # serve the built dist/ locally
     ├── App.tsx                # page layout: Header, Hero, sections, Footer
     │
     ├── data/
-    │   └── site.ts            # ✏️ ALL CONTENT: nav links, team members, assignments, report stages
+    │   └── site.ts            # ✏️ ALL CONTENT: nav links, team members, assignments, report stages, logo versions
     │
     ├── components/
     │   ├── Header.tsx         # "VS" navbar: P1 (Pessoa) vs P2 (Máquina) HP bars, links, mobile menu
@@ -78,7 +79,8 @@ npm run preview  # serve the built dist/ locally
     │       ├── Assignments.tsx# 03 Assignments: a file folder per member that opens on hover, with their PDFs as papers
     │       ├── Reports.tsx    # 04 Reports: group reports, stage by stage
     │       ├── FilePreview.tsx# floating PDF preview that follows the cursor (used by Reports)
-    │       └── Development.tsx# 05 Development: link to the app prototype
+    │       ├── LogoEvolution.tsx # 05 Logótipo: the logo's versions along a flight path
+    │       └── Development.tsx# 06 Development: link to the app prototype
     │
     ├── fight/
     │   └── FightContext.tsx   # shared HP state for the hero fight and the navbar bars
@@ -121,6 +123,10 @@ Each component's styles live next to it as a CSS Module (`*.module.css`).
    { number: 1, title: "Assignment 1", submitted: ["75539", "73984"] },
    ```
    For a new assignment, add a new entry: `{ number: 2, title: "Assignment 2", submitted: [] }`.
+
+### Add a new logo version
+1. Put the image in `public/logo/` (e.g. `logo-v5.jpg`).
+2. Add an entry at the end of `logoVersions` in [`src/data/site.ts`](src/data/site.ts) with its `src`, a short `name` for the timeline, a `title` and a `description`.
 
 ### Change a team member's photo
 Replace the file in `public/members/`. If the face isn't well framed on the card, adjust `photoPosition` (and optionally `photoZoom`) for that member in [`src/data/site.ts`](src/data/site.ts).

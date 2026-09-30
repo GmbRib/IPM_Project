@@ -1,0 +1,260 @@
+/* ---------- Viewer: the current version on paper, and its story ---------- */
+.viewer {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 5vw, 4rem);
+  align-items: center;
+}
+
+.stage {
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  margin: 0;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  overflow: hidden;
+  transition: background 600ms ease;
+}
+
+/* The final, coloured version gets a warm sunny glow behind it */
+.stage[data-final] {
+  background: radial-gradient(circle at 50% 60%, #ffe3a3 0%, #f6dfd2 45%, var(--bg-2) 80%);
+}
+
+/* Each version sits on its own sheet of paper; they cross-fade */
+.image {
+  position: absolute;
+  inset: 9% 14%;
+  width: 72%;
+  height: 82%;
+  object-fit: contain;
+  padding: 4%;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 14px 30px -18px rgba(28, 26, 33, 0.5);
+  opacity: 0;
+  rotate: var(--tilt);
+  scale: 0.94;
+  translate: 0 12px;
+  transition:
+    opacity 450ms ease,
+    scale 600ms var(--ease),
+    translate 600ms var(--ease);
+}
+
+.image.shown {
+  opacity: 1;
+  scale: 1;
+  translate: 0 0;
+}
+
+.badge {
+  position: absolute;
+  top: 0.9rem;
+  left: 0.9rem;
+  padding: 0.3em 0.7em;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.step {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--human);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  line-height: 1.05;
+}
+
+.description {
+  margin: 0.9rem 0 1.5rem;
+  max-width: 44ch;
+  color: var(--ink-2);
+  min-height: 5.2em; /* keeps the buttons from jumping between versions */
+}
+
+.controls {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.arrow {
+  padding: 0.6em 1.1em;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: 500 0.9rem/1 var(--font-body);
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    opacity 180ms ease;
+}
+
+.arrow:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* ---------- Flight path with the four stops ---------- */
+.path {
+  --slot: calc(100% / var(--count));
+  position: relative;
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+
+/* Dashed route through the centre of every thumbnail */
+.line {
+  position: absolute;
+  top: 34px;
+  left: calc(var(--slot) / 2);
+  right: calc(var(--slot) / 2);
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--metal-2) 0 8px, transparent 8px 16px);
+}
+
+/* The part already flown, solid */
+.flown {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(100% * var(--at) / (var(--count) - 1));
+  background: linear-gradient(90deg, var(--human), var(--machine));
+  transition: width 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+
+
+.stops {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--count), 1fr);
+}
+
+.stop {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+  font: inherit;
+  cursor: pointer;
+}
+
+.thumb {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--line);
+  transition:
+    box-shadow 250ms ease,
+    scale 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
+  filter: grayscale(1);
+  opacity: 0.7;
+  transition:
+    filter 250ms ease,
+    opacity 250ms ease;
+}
+
+.stop:hover .thumb {
+  scale: 1.06;
+}
+
+.stop:hover .thumb img,
+.stop[aria-current] .thumb img {
+  filter: none;
+  opacity: 1;
+}
+
+.stop[aria-current] {
+  color: var(--ink);
+}
+
+.stop[aria-current] .thumb {
+  scale: 1.12;
+  box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--machine);
+}
+
+.stopLabel {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.stopNum {
+  font-weight: 700;
+  color: var(--human);
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 760px) {
+  .viewer {
+    grid-template-columns: 1fr;
+  }
+
+  .description {
+    min-height: 0;
+  }
+
+  .thumb {
+    width: 52px;
+    height: 52px;
+  }
+
+  .line {
+    top: 26px;
+  }
+
+  .plane {
+    --size: 24px;
+    top: calc(26px - 30px - var(--size));
+  }
+
+  .stopLabel {
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 420px) {
+  /* Only the version number fits under the thumbnails */
+  .stopLabel {
+    font-size: 0;
+  }
+
+  .stopNum {
+    font-size: 0.75rem;
+  }
+}

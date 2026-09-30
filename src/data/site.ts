@@ -27,6 +27,7 @@ export const navLinks: { id: string; label: string; side: Side }[] = [
   { id: "equipa", label: "Equipa", side: "human" },
   { id: "assignments", label: "Assignments", side: "human" },
   { id: "reports", label: "Reports", side: "machine" },
+  { id: "logotipo", label: "Logótipo", side: "machine" },
   { id: "development", label: "Development", side: "machine" },
 ];
 
@@ -92,3 +93,43 @@ export const assignmentFile = (assignment: number, studentNumber: string) => ({
   href: `/reports/assignment${assignment}-${studentNumber}.pdf`,
   preview: `/reports/previews/assignment${assignment}-${studentNumber}-1.jpg`,
 });
+
+export type LogoVersion = {
+  src: string;
+  /** Short name for the step on the timeline. */
+  name: string;
+  title: string;
+  description: string;
+};
+
+/** The logo from first sketch to final version, in order. Images live in public/logo/. */
+export const logoVersions: LogoVersion[] = [
+  {
+    src: "/logo/logo-v1.jpg",
+    name: "Trip Pack",
+    title: "Uma mala a levantar voo",
+    description:
+      "O primeiro esboço, ainda com o nome Trip Pack: uma mala aberta de onde sai um avião. Junta as duas ideias de base da app, fazer a mala e viajar.",
+  },
+  {
+    src: "/logo/logo-v2.jpg",
+    name: "O rasto",
+    title: "A checklist fica pelo caminho",
+    description:
+      "A mala desaparece e o avião passa a deixar um rasto de objetos e de vistos. Mostra a ideia central da app: a lista vai ficando feita à medida que se prepara a viagem.",
+  },
+  {
+    src: "/logo/logo-v3.jpg",
+    name: "Simplificar",
+    title: "Menos detalhe, mais leitura",
+    description:
+      "Passado a limpo: ficam só o avião e três vistos. Com menos elementos, o logótipo continua legível mesmo em tamanho pequeno, como um ícone no telemóvel.",
+  },
+  {
+    src: "/logo/logo-v4.jpg",
+    name: "Pack&Sun",
+    title: "Nasce o Pack&Sun",
+    description:
+      "A versão final, já com cor. O nome muda para Pack&Sun e o avião voa sobre um sol, ligando a mala ao tempo que vai fazer no destino.",
+  },
+];
