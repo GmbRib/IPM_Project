@@ -4,7 +4,7 @@ import s from "./Sections.module.css";
 
 export function Development() {
   return (
-    <Section id="development" index="04" title="Development" tone="dark">
+    <Section id="development" index="05" title="Development" tone="dark">
       <div className={s.devBand}>
         {/* TODO: descrever o protótipo */}
         <p className={s.devText}>

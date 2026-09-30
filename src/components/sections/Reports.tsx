@@ -1,25 +1,21 @@
-import { useRef, useState } from "react";
 import { stages } from "../../data/site";
-import { useFollowCursor } from "../../hooks/useFollowCursor";
+import { FilePreview, usePreviewHover } from "./FilePreview";
 import { Section } from "./Section";
 import s from "./Reports.module.css";
 
+const previewFiles = stages
+  .filter((stage) => stage.previews)
+  .map((stage) => ({ key: String(stage.number), pages: stage.previews! }));
+
 export function Reports() {
-  const [active, setActive] = useState<number | null>(null);
-  // The floating preview only follows the mouse; keyboard focus just highlights the row.
-  const [pointer, setPointer] = useState(false);
-  const hover = (n: number | null) => {
-    setActive(n);
-    setPointer(n !== null);
-  };
-  const floatRef = useRef<HTMLDivElement>(null);
-  useFollowCursor(floatRef);
+  const { active, visible, hover, rowProps } = usePreviewHover();
 
   return (
-    <Section id="reports" index="03" title="Reports" intro="Relatórios de grupo, etapa a etapa.">
+    <Section id="reports" index="04" title="Reports" intro="Relatórios de grupo, etapa a etapa.">
       <ol className={s.list} data-active={active !== null || undefined} onMouseLeave={() => hover(null)}>
         {stages.map((stage) => {
-          const num = String(stage.number).padStart(2, "0");
+          const key = String(stage.number);
+          const num = key.padStart(2, "0");
           const meta = (
             <>
               <span className={s.num}>{num}</span>
@@ -34,13 +30,11 @@ export function Reports() {
             <li key={stage.number} className={s.item}>
               {stage.available ? (
                 <a
-                  className={`${s.row} ${active === stage.number ? s.isActive : ""}`}
+                  className={`${s.row} ${active === key ? s.isActive : ""}`}
                   href={stage.href}
                   target="_blank"
                   rel="noopener"
-                  onMouseEnter={() => hover(stage.number)}
-                  onFocus={() => setActive(stage.number)}
-                  onBlur={() => !pointer && setActive(null)}
+                  {...rowProps(key)}
                 >
                   {meta}
                   <span className={s.icon} aria-hidden="true">
@@ -58,20 +52,7 @@ export function Reports() {
         })}
       </ol>
 
-      {/* Floating preview that trails the cursor while a report row is hovered */}
-      <div ref={floatRef} className={s.float} data-visible={(pointer && active !== null) || undefined} aria-hidden="true">
-        <div className={s.card}>
-          {stages
-            .filter((stage) => stage.previews)
-            .map((stage) => (
-              <div key={stage.number} className={`${s.pages} ${active === stage.number ? s.pagesOn : ""}`}>
-                <img className={s.pageBack} src={stage.previews![1]} alt="" loading="lazy" />
-                <img className={s.pageFront} src={stage.previews![0]} alt="" loading="lazy" />
-              </div>
-            ))}
-        </div>
-        <span className={s.view}>Abrir</span>
-      </div>
+      <FilePreview files={previewFiles} active={active} visible={visible} />
     </Section>
   );
 }

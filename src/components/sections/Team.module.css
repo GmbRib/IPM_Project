@@ -1,10 +1,18 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 560px;
+  }
 }
 
 .card {
+  container-type: inline-size;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -66,7 +74,7 @@
   display: grid;
   place-items: center;
   font-family: var(--font-display);
-  font-size: clamp(3.5rem, 7vw, 5rem);
+  font-size: clamp(2.25rem, 30cqi, 5rem);
   color: var(--surface);
   letter-spacing: 0.04em;
   transition:
@@ -128,4 +136,20 @@
   color: var(--ink-2);
   font-size: 0.9rem;
   font-variant-numeric: tabular-nums;
+}
+
+/* Narrow cards (two per row on phones): tighter text and spacing */
+@container (max-width: 200px) {
+  .body {
+    padding: 0.7rem 0.8rem 0.85rem;
+  }
+
+  .name {
+    font-size: 0.95rem;
+    line-height: 1.25;
+  }
+
+  .number {
+    font-size: 0.78rem;
+  }
 }

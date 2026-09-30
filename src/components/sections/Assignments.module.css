@@ -1,0 +1,299 @@
+.summary {
+  list-style: none;
+  margin: -1.5rem 0 2.5rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.summary li {
+  padding: 0.4em 0.9em;
+  border-radius: 999px;
+  background: var(--bg-2);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.summary strong {
+  color: var(--ink);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(2.5rem, 5vw, 3.5rem) clamp(0.75rem, 2vw, 1.5rem);
+  padding-top: clamp(1.75rem, 4vw, 2.5rem); /* room for the papers to rise out of the folders */
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 560px;
+  }
+}
+
+/* ---------- Folder ---------- */
+.folder {
+  container-type: inline-size;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --side: var(--human);
+  --side-2: var(--human-2);
+  position: relative;
+  aspect-ratio: 5 / 4;
+  perspective: 900px;
+  outline: none;
+}
+
+.folder[data-side="machine"] {
+  --side: var(--machine);
+  --side-2: #0e6a74;
+}
+
+.folder:focus-visible {
+  outline: 3px solid var(--machine);
+  outline-offset: 6px;
+  border-radius: 14px;
+}
+
+.back {
+  position: absolute;
+  inset: 8% 0 0;
+  background: var(--side-2);
+  border-radius: 0 14px 14px 14px;
+}
+
+/* The folder tab, with the member's first name */
+.tab {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  min-width: 44%;
+  padding: 0.35rem 1rem 0.25rem;
+  background: var(--side-2);
+  border-radius: 10px 14px 0 0;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ---------- Papers ---------- */
+.papers {
+  position: absolute;
+  inset: 4% 7% 18%;
+}
+
+.paper {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(28, 26, 33, 0.18);
+  text-decoration: none;
+  color: var(--ink);
+  translate: calc(var(--i) * 6%) calc(var(--i) * -4%);
+  transition:
+    translate 550ms var(--ease),
+    rotate 550ms var(--ease),
+    box-shadow 300ms ease;
+  transition-delay: calc(var(--i) * 40ms);
+}
+
+.paper img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: top;
+}
+
+.paperLabel {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  padding: 0.2em 0.55em;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Not handed in: a ruled sheet with a stamp */
+.blank {
+  background:
+    repeating-linear-gradient(transparent 0 14px, #dfe6ee 14px 15px) 0 22px / 100% calc(100% - 22px) no-repeat,
+    #fff;
+}
+
+.stamp {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  translate: -50% 0;
+  rotate: -12deg;
+  padding: 0.2em 0.6em;
+  border: 2px solid var(--human);
+  border-radius: 4px;
+  color: var(--human);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+/* ---------- Front flap ---------- */
+.front {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 70%;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
+  align-items: center;
+  column-gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border-radius: 12px 12px 14px 14px;
+  background: linear-gradient(170deg, color-mix(in srgb, var(--side) 88%, #fff), var(--side));
+  box-shadow:
+    0 -1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 14px 28px -18px rgba(28, 26, 33, 0.6);
+  color: #fff;
+  transform-origin: bottom center;
+  transition: transform 550ms var(--ease);
+  pointer-events: none; /* clicks go through to the papers */
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+}
+
+.who {
+  min-width: 0;
+}
+
+.name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.number {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+.status {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding: 0.25em 0.7em;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.18);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ---------- Open: hover, or keyboard focus anywhere in the folder ---------- */
+.folder:hover .front,
+.folder:focus-within .front {
+  transform: rotateX(-32deg);
+}
+
+.folder:hover .paper,
+.folder:focus-within .paper {
+  translate: calc(var(--i) * 14%) calc(-34% + var(--i) * -6%);
+  rotate: calc(-4deg + var(--i) * 6deg);
+  box-shadow: 0 16px 30px -14px rgba(28, 26, 33, 0.45);
+}
+
+.paper:hover,
+.paper:focus-visible {
+  z-index: 1;
+  box-shadow:
+    0 0 0 3px var(--side),
+    0 18px 34px -12px rgba(28, 26, 33, 0.5);
+}
+
+/* Touch screens can't hover: keep folders slightly open so the papers are visible */
+@media (hover: none) {
+  .front {
+    transform: rotateX(-18deg);
+  }
+
+  .paper {
+    translate: calc(var(--i) * 14%) calc(-22% + var(--i) * -6%);
+    rotate: calc(-3deg + var(--i) * 6deg);
+  }
+}
+
+/* Small folders (two per row on phones): more room for the flap, smaller contents */
+@media (max-width: 600px) {
+  .folder {
+    aspect-ratio: 1 / 1;
+  }
+
+  .summary {
+    margin: -0.75rem 0 1.75rem;
+  }
+}
+
+@container (max-width: 210px) {
+  .front {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    align-items: start;
+    row-gap: 0.35rem;
+    padding: 0.65rem 0.7rem;
+  }
+
+  .avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .name {
+    font-size: 0.85rem;
+  }
+
+  .number {
+    font-size: 0.7rem;
+  }
+
+  .status {
+    font-size: 0.6rem;
+  }
+
+  .tab {
+    padding: 0.25rem 0.65rem 0.2rem;
+    font-size: 0.62rem;
+  }
+
+  .stamp {
+    font-size: 0.85rem;
+  }
+
+  .paperLabel {
+    left: 0.35rem;
+    bottom: 0.35rem;
+    font-size: 0.55rem;
+  }
+}

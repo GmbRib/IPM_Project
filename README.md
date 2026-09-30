@@ -15,10 +15,14 @@ All PDFs are in **[`public/reports/`](public/reports/)**:
 |---|---|
 | [`G_03_stage1.pdf`](public/reports/G_03_stage1.pdf) | Stage 1: problem, target users, project goal, competitors |
 | [`G_03_stage2.pdf`](public/reports/G_03_stage2.pdf) | Stage 2: problem, users, tasks, scenarios, interviews |
-| [`assignment1-75539.pdf`](public/reports/assignment1-75539.pdf) | Individual Assignment 1 (Guilherme). It is stored here but not linked on the site. |
+| [`assignment1-75539.pdf`](public/reports/assignment1-75539.pdf) | Individual Assignment 1: Guilherme |
 | `previews/` | Images of each PDF's first two pages, used for the hover preview on the site. |
 
-On the website they appear in the **Reports** section. Stages 3–6 show as "Em breve" until their PDFs are added.
+On the website, group reports appear in the **Reports** section and individual assignments in the **Assignments** section. Anything not submitted yet shows as "Em breve".
+
+File names follow a fixed pattern, which the site relies on:
+- Group reports: `G_03_stage<N>.pdf`
+- Individual assignments: `assignment<N>-<student number>.pdf`
 
 ---
 
@@ -57,7 +61,7 @@ npm run preview  # serve the built dist/ locally
     ├── App.tsx                # page layout: Header, Hero, sections, Footer
     │
     ├── data/
-    │   └── site.ts            # ✏️ ALL CONTENT: nav links, team members, report stages
+    │   └── site.ts            # ✏️ ALL CONTENT: nav links, team members, assignments, report stages
     │
     ├── components/
     │   ├── Header.tsx         # "VS" navbar: P1 (Pessoa) vs P2 (Máquina) HP bars, links, mobile menu
@@ -71,15 +75,17 @@ npm run preview  # serve the built dist/ locally
     │       ├── Section.tsx    # shared wrapper (number + title + intro)
     │       ├── About.tsx      # 01 Quem Somos
     │       ├── Team.tsx       # 02 Equipa: member cards, photo revealed on hover
-    │       ├── Reports.tsx    # 03 Reports: list with a floating PDF preview on hover
-    │       └── Development.tsx# 04 Development: link to the app prototype
+    │       ├── Assignments.tsx# 03 Assignments: a file folder per member that opens on hover, with their PDFs as papers
+    │       ├── Reports.tsx    # 04 Reports: group reports, stage by stage
+    │       ├── FilePreview.tsx# floating PDF preview that follows the cursor (used by Reports)
+    │       └── Development.tsx# 05 Development: link to the app prototype
     │
     ├── fight/
     │   └── FightContext.tsx   # shared HP state for the hero fight and the navbar bars
     │
     ├── hooks/
     │   ├── useActiveSection.ts # highlights the nav link of the section being read
-    │   ├── useFollowCursor.ts  # makes the report preview trail the mouse
+    │   ├── useFollowCursor.ts  # makes the PDF preview trail the mouse
     │   └── useLookAt.ts        # makes the figures' eyes follow the cursor
     │
     └── styles/
@@ -103,6 +109,18 @@ Each component's styles live next to it as a CSS Module (`*.module.css`).
    3: { topics: ["Protótipo", "Avaliação"], pages: 5 },
    ```
    Adding this line is what makes the stage clickable on the site.
+
+### Add an individual assignment
+1. Put the PDF in `public/reports/`, named `assignment<N>-<student number>.pdf` (e.g. `assignment1-73984.pdf`).
+2. Generate its preview image:
+   ```bash
+   npm run previews
+   ```
+3. In [`src/data/site.ts`](src/data/site.ts), add the student number to that assignment's `submitted` list:
+   ```ts
+   { number: 1, title: "Assignment 1", submitted: ["75539", "73984"] },
+   ```
+   For a new assignment, add a new entry: `{ number: 2, title: "Assignment 2", submitted: [] }`.
 
 ### Change a team member's photo
 Replace the file in `public/members/`. If the face isn't well framed on the card, adjust `photoPosition` (and optionally `photoZoom`) for that member in [`src/data/site.ts`](src/data/site.ts).

@@ -25,6 +25,7 @@ export type Side = "human" | "machine";
 export const navLinks: { id: string; label: string; side: Side }[] = [
   { id: "quem-somos", label: "Quem Somos", side: "human" },
   { id: "equipa", label: "Equipa", side: "human" },
+  { id: "assignments", label: "Assignments", side: "human" },
   { id: "reports", label: "Reports", side: "machine" },
   { id: "development", label: "Development", side: "machine" },
 ];
@@ -74,4 +75,20 @@ export const stages: Stage[] = [1, 2, 3, 4, 5, 6].map((n) => {
       previews: [`/reports/previews/G_03_stage${n}-1.jpg`, `/reports/previews/G_03_stage${n}-2.jpg`],
     }),
   };
+});
+
+export type Assignment = {
+  number: number;
+  title: string;
+  /** Student numbers of the members who have submitted it. */
+  submitted: string[];
+};
+
+/** Individual assignments. Add a student number to `submitted` once their PDF is in public/reports/. */
+export const assignments: Assignment[] = [{ number: 1, title: "Assignment 1", submitted: ["75539"] }];
+
+/** File naming convention: public/reports/assignment<N>-<student number>.pdf */
+export const assignmentFile = (assignment: number, studentNumber: string) => ({
+  href: `/reports/assignment${assignment}-${studentNumber}.pdf`,
+  preview: `/reports/previews/assignment${assignment}-${studentNumber}-1.jpg`,
 });
