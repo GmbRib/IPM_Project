@@ -1,3 +1,5 @@
+const base = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
+
 export type Member = {
   name: string;
   number: string;
@@ -37,24 +39,24 @@ export const members: Member[] = [
   {
     name: "Dinis Santos",
     number: "72815",
-    photo: "/members/Dinis.jpeg",
+    photo: base("/members/Dinis.jpeg"),
   },
   {
     name: "Guilherme Ribeiro",
     number: "75539",
-    photo: "/members/Gui.jpeg",
+    photo: base("/members/Gui.jpeg"),
     photoPosition: "50% 20%",
   },
   {
     name: "Joana Neves",
     number: "75205",
-    photo: "/members/Joana.jpeg",
+    photo: base("/members/Joana.jpeg"),
     photoPosition: "50% 25%",
   },
   {
     name: "Rodrigo Loução",
     number: "73984",
-    photo: "/members/Loucao.jpeg",
+    photo: base("/members/Loucao.jpeg"),
     photoPosition: "45% 15%",
   },
 ];
@@ -69,11 +71,11 @@ export const stages: Stage[] = [1, 2, 3, 4, 5, 6].map((n) => {
   return {
     number: n,
     title: `Stage ${n}`,
-    href: `/reports/G_03_stage${n}.pdf`,
+    href: base(`/reports/G_03_stage${n}.pdf`),
     available: Boolean(info),
     ...(info && {
       ...info,
-      previews: [`/reports/previews/G_03_stage${n}-1.jpg`, `/reports/previews/G_03_stage${n}-2.jpg`],
+      previews: [base(`/reports/previews/G_03_stage${n}-1.jpg`), base(`/reports/previews/G_03_stage${n}-2.jpg`)],
     }),
   };
 });
@@ -90,8 +92,8 @@ export const assignments: Assignment[] = [{ number: 1, title: "Assignment 1", su
 
 /** File naming convention: public/reports/assignment<N>-<student number>.pdf */
 export const assignmentFile = (assignment: number, studentNumber: string) => ({
-  href: `/reports/assignment${assignment}-${studentNumber}.pdf`,
-  preview: `/reports/previews/assignment${assignment}-${studentNumber}-1.jpg`,
+  href: base(`/reports/assignment${assignment}-${studentNumber}.pdf`),
+  preview: base(`/reports/previews/assignment${assignment}-${studentNumber}-1.jpg`),
 });
 
 export type LogoVersion = {
@@ -105,28 +107,28 @@ export type LogoVersion = {
 /** The logo from first sketch to final version, in order. Images live in public/logo/. */
 export const logoVersions: LogoVersion[] = [
   {
-    src: "/logo/logo-v1.jpg",
+    src: base("/logo/logo-v1.jpg"),
     name: "Trip Pack",
     title: "Uma mala a levantar voo",
     description:
       "O primeiro esboço, ainda com o nome Trip Pack: uma mala aberta de onde sai um avião. Junta as duas ideias de base da app, fazer a mala e viajar.",
   },
   {
-    src: "/logo/logo-v2.jpg",
+    src: base("/logo/logo-v2.jpg"),
     name: "O rasto",
     title: "A checklist fica pelo caminho",
     description:
       "A mala desaparece e o avião passa a deixar um rasto de objetos e de vistos. Mostra a ideia central da app: a lista vai ficando feita à medida que se prepara a viagem.",
   },
   {
-    src: "/logo/logo-v3.jpg",
+    src: base("/logo/logo-v3.jpg"),
     name: "Simplificar",
     title: "Menos detalhe, mais leitura",
     description:
       "Passado a limpo: ficam só o avião e três vistos. Com menos elementos, o logótipo continua legível mesmo em tamanho pequeno, como um ícone no telemóvel.",
   },
   {
-    src: "/logo/logo-v4.jpg",
+    src: base("/logo/logo-v4.jpg"),
     name: "Pack&Sun",
     title: "Nasce o Pack&Sun",
     description:
