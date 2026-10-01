@@ -1,0 +1,104 @@
+.float {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 50;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 230px;
+  aspect-ratio: 636 / 900;
+  translate: 1.5rem -50%;
+  opacity: 0;
+  scale: 0.85;
+  rotate: -4deg;
+  transition:
+    opacity 250ms ease,
+    scale 400ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    rotate 400ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    translate 350ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.pages {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+
+.pagesOn {
+  opacity: 1;
+}
+
+.pages img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 24px 48px -18px rgba(28, 26, 33, 0.45);
+}
+
+/* The inner page fans out behind the cover */
+.pageBack {
+  rotate: 9deg;
+  translate: 32% 4%;
+}
+
+.pageFront {
+  outline: 1px solid var(--line);
+}
+
+.view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 76px;
+  height: 76px;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--machine);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  scale: 0;
+  transition: scale 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Flipped: the card sits to the left of the cursor, fanning the other way */
+.float[data-flip] .card {
+  translate: calc(-100% - 1.5rem) -50%;
+}
+
+.float[data-flip] .pageBack {
+  rotate: -9deg;
+  translate: -32% 4%;
+}
+
+.float[data-visible] .card {
+  opacity: 1;
+  scale: 1;
+  rotate: -2deg;
+}
+
+.float[data-visible] .view {
+  scale: 1;
+}
+
+/* No hover on touch screens: no floating preview */
+@media (hover: none) {
+  .float {
+    display: none;
+  }
+}

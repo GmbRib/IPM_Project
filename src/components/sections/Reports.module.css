@@ -1,0 +1,109 @@
+/* ---------- Rows ---------- */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.item {
+  border-bottom: 1px solid var(--line);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 3rem 1fr auto 2rem;
+  align-items: center;
+  gap: 1rem;
+  padding: clamp(1.1rem, 2.4vw, 1.75rem) 0;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.num {
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  line-height: 1;
+  transition:
+    color 300ms ease,
+    translate 450ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.meta {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  text-align: right;
+}
+
+.icon {
+  justify-self: end;
+  font-size: 1.4rem;
+  line-height: 1;
+  transition: translate 300ms ease, color 300ms ease;
+}
+
+.badge {
+  justify-self: end;
+  grid-column: 3 / span 2;
+  padding: 0.35em 0.8em;
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--ink-2);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.off .title {
+  color: color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+/* While one row is hovered, the others fade back */
+.list[data-active] .row:not(.isActive) .title {
+  color: color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+.row.isActive .title {
+  color: var(--machine);
+  translate: 0.4em 0;
+}
+
+.row.isActive .icon {
+  color: var(--machine);
+  translate: 3px -3px;
+}
+
+/* Hide the system cursor over rows that show the bubble instead */
+@media (hover: hover) and (pointer: fine) {
+  a.row {
+    cursor: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 2.25rem 1fr auto;
+  }
+
+  .meta {
+    grid-column: 2 / -1;
+    grid-row: 2;
+    text-align: left;
+  }
+
+  .badge {
+    grid-column: 3;
+  }
+}

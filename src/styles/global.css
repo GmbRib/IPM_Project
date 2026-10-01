@@ -1,0 +1,124 @@
+:root {
+  --bg: #f5f1ea;
+  --bg-2: #ece6db;
+  --surface: #fffdf9;
+  --ink: #1c1a21;
+  --ink-2: #5a5561;
+  --line: rgba(28, 26, 33, 0.12);
+
+  /* Pessoa — warm */
+  --human: #d4562f;
+  --human-2: #a9432a;
+  --human-tint: #f6dfd2;
+  --skin: #f0c19c;
+  --skin-2: #d9a47e;
+
+  /* Máquina — cool */
+  --machine: #138a97;
+  --machine-glow: #5ff1ff;
+  --machine-tint: #d7ecee;
+  --metal: #d3d9e1;
+  --metal-2: #a3adba;
+  --metal-3: #6c7787;
+  --dark: #1c2330;
+
+  --font-display: "Rubik Dirt", "Rubik", system-ui, sans-serif;
+  --font-body: "Rubik", system-ui, -apple-system, sans-serif;
+
+  --header-h: 76px;
+  --radius: 18px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --content: 1120px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.05;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--machine);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Buttons shared across sections */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.8em 1.4em;
+  border-radius: 999px;
+  font: 500 1rem/1 var(--font-body);
+  text-decoration: none;
+  border: 2px solid var(--ink);
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  background: var(--human);
+  border-color: var(--human);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn-ghost:hover {
+  background: var(--machine);
+  border-color: var(--machine);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

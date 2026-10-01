@@ -1,0 +1,155 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 560px;
+  }
+}
+
+.card {
+  container-type: inline-size;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition:
+    transform 250ms ease,
+    box-shadow 250ms ease;
+}
+
+/* Photo + the two sliding "doors" that hide it */
+.photo {
+  --ease: cubic-bezier(0.7, 0, 0.2, 1);
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--bg-2);
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  scale: calc(var(--zoom) * 1.12);
+  filter: grayscale(1);
+  transition:
+    scale 700ms var(--ease),
+    filter 700ms ease;
+}
+
+.cover {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.doorL,
+.doorR {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.5%;
+  transition: translate 650ms var(--ease);
+}
+
+.doorL {
+  left: 0;
+  background: var(--human);
+}
+
+.doorR {
+  right: 0;
+  background: var(--machine);
+}
+
+.initials {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 30cqi, 5rem);
+  color: var(--surface);
+  letter-spacing: 0.04em;
+  transition:
+    opacity 300ms ease,
+    scale 500ms var(--ease);
+}
+
+.card:hover,
+.card:focus-within {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 36px -20px rgba(28, 26, 33, 0.45);
+}
+
+.card:hover .doorL,
+.card:focus-within .doorL {
+  translate: -101% 0;
+}
+
+.card:hover .doorR,
+.card:focus-within .doorR {
+  translate: 101% 0;
+}
+
+.card:hover .initials,
+.card:focus-within .initials {
+  opacity: 0;
+  scale: 1.4;
+}
+
+.card:hover .photo img,
+.card:focus-within .photo img {
+  scale: var(--zoom);
+  filter: none;
+}
+
+/* Touch screens have no hover: show the photos straight away. */
+@media (hover: none) {
+  .cover {
+    display: none;
+  }
+
+  .photo img {
+    scale: var(--zoom);
+    filter: none;
+  }
+}
+
+.body {
+  padding: 1.1rem 1.25rem 1.35rem;
+}
+
+.name {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.number {
+  margin: 0.2rem 0 0;
+  color: var(--ink-2);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Narrow cards (two per row on phones): tighter text and spacing */
+@container (max-width: 200px) {
+  .body {
+    padding: 0.7rem 0.8rem 0.85rem;
+  }
+
+  .name {
+    font-size: 0.95rem;
+    line-height: 1.25;
+  }
+
+  .number {
+    font-size: 0.78rem;
+  }
+}
