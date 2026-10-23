@@ -22,7 +22,13 @@ export function Team() {
           <article key={member.number} className={s.card} tabIndex={0}>
             <div
               className={s.photo}
-              style={{ "--zoom": member.photoZoom ?? 1 } as CSSProperties}
+              style={
+                {
+                  "--zoom": member.photoZoom ?? 1,
+                  cursor: member.url ? "crosshair" : "default",
+                } as CSSProperties
+              }
+              onClick={() => member.url && window.open(member.url)}
             >
               <img
                 src={member.photo}

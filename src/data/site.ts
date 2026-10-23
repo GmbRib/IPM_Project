@@ -7,6 +7,7 @@ export type Member = {
   /** Framing for the photo inside the card: CSS object-position and zoom. */
   photoPosition?: string;
   photoZoom?: number;
+  url?: string;
 };
 
 export type Stage = {
@@ -40,24 +41,28 @@ export const members: Member[] = [
     name: "Dinis Santos",
     number: "72815",
     photo: base("/members/Dinis.jpeg"),
+    url: "https://www.linkedin.com/in/dinis-santos-380006257/"
   },
   {
     name: "Guilherme Ribeiro",
     number: "75539",
     photo: base("/members/Gui.jpeg"),
     photoPosition: "50% 20%",
+    url: "https://github.com/GmbRib"
   },
   {
     name: "Joana Neves",
     number: "75205",
     photo: base("/members/Joana.jpeg"),
     photoPosition: "50% 25%",
+    url: "https://www.linkedin.com/in/joana-neves-a25903260/"
   },
   {
     name: "Rodrigo Loução",
     number: "73984",
     photo: base("/members/Loucao.jpeg"),
     photoPosition: "45% 15%",
+    url: "https://rloucao.dev/"
   },
 ];
 
