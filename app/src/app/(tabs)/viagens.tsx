@@ -5,21 +5,20 @@ import {
   CircleCheck,
   MapPin,
   Plane,
+  Ellipsis,
   Plus,
   Sparkles,
-  Trash2,
   TriangleAlert,
 } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
-import Animated, { FadeOut, LinearTransition } from 'react-native-reanimated';
+import Animated, { FadeOut } from 'react-native-reanimated';
 
 import { TripsSheet } from '@/components/trips/TripsSheet';
 import { WeatherCard } from '@/components/trips/WeatherCard';
 import {
   Button,
   Card,
-  ConfirmDialog,
   EmptyState,
   FadeInView,
   IconButton,
@@ -32,6 +31,7 @@ import { DEFAULT_SETTINGS, type Trip } from '@/data/types';
 import { documentIssues } from '@/domain/documents';
 import { useSuggestionActions } from '@/hooks/useSuggestionActions';
 import { dayTitle, rangeLabel } from '@/lib/calendar';
+import { confirm, showActions } from '@/lib/dialogs';
 import { paxLabel, PURPOSES } from '@/lib/labels';
 import { useData } from '@/stores/data';
 import { useSession } from '@/stores/session';
@@ -46,7 +46,6 @@ export default function ViagensScreen() {
   const showToast = useUi((s) => s.showToast);
   const { accept, dismiss } = useSuggestionActions();
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // A trip picked elsewhere (calendar bar, trips sheet), otherwise the current/next one.
   const trip = trips.find((t) => t.id === selectedId) ?? currentTrip(trips);
@@ -88,7 +87,14 @@ export default function ViagensScreen() {
   const reviewed = reviews.some((r) => r.tripId === trip.id);
 
   async function deleteTrip(t: Trip) {
-    setConfirmDelete(false);
+    const ok = await confirm({
+      title: `Eliminar a viagem a ${t.destination.name}?`,
+      message: 'A mala, os eventos e o histórico desta viagem também são apagados.',
+      confirmLabel: 'Eliminar',
+      cancelLabel: 'Cancelar',
+      destructive: true,
+    });
+    if (!ok) return;
     selectTrip(null);
     await removeTrip(t.id);
     showToast({ message: `Viagem a ${t.destination.name} eliminada` });
@@ -96,7 +102,7 @@ export default function ViagensScreen() {
 
   return (
     <Screen edges={['top']} scroll>
-      <View className="flex-row items-start gap-2 py-2">
+      <View className="flex-row items-start gap-2 pb-1 pt-2">
         <Pressable
           onPress={() => setSheetOpen(true)}
           accessibilityRole="button"
@@ -111,16 +117,29 @@ export default function ViagensScreen() {
             <ChevronDown size={26} color={colors.ink} />
           </View>
         </Pressable>
-        <IconButton
-          icon={Plus}
-          variant="filled"
-          accessibilityLabel="Nova viagem"
-          onPress={() => router.push('/trip/new')}
-          className="mt-3"
-        />
+        <View className="mt-3 flex-row gap-2">
+          <IconButton
+            icon={Ellipsis}
+            variant="glass"
+            accessibilityLabel="Mais opções da viagem"
+            onPress={() =>
+              showActions(trip.destination.name, [
+                { label: 'Mudar de viagem', onPress: () => setSheetOpen(true) },
+                { label: 'Ver histórico', onPress: () => router.push('/historico') },
+                { label: 'Eliminar viagem', destructive: true, onPress: () => deleteTrip(trip) },
+              ])
+            }
+          />
+          <IconButton
+            icon={Plus}
+            variant="filled"
+            accessibilityLabel="Nova viagem"
+            onPress={() => router.push('/trip/new')}
+          />
+        </View>
       </View>
 
-      <View className="mb-4 flex-row flex-wrap items-center gap-2">
+      <View className="mb-5 flex-row flex-wrap items-center gap-2">
         <Text variant="caption">
           {rangeLabel(trip.startDate, trip.endDate)} · {paxLabel(trip.adults, trip.children)} ·{' '}
           {PURPOSES[trip.purpose]}
@@ -169,7 +188,6 @@ export default function ViagensScreen() {
                   <Animated.View
                     key={s.id}
                     exiting={FadeOut.duration(200)}
-                    layout={LinearTransition.duration(250)}
                     style={{
                       gap: 8,
                       borderRadius: 16,
@@ -313,14 +331,6 @@ export default function ViagensScreen() {
             </Card>
           </FadeInView>
         )}
-
-        <Button
-          title="Eliminar viagem"
-          variant="ghost"
-          icon={Trash2}
-          onPress={() => setConfirmDelete(true)}
-          className="mt-2"
-        />
       </View>
 
       <TripsSheet
@@ -330,16 +340,6 @@ export default function ViagensScreen() {
         packing={packing}
         selectedId={trip.id}
         onSelect={selectTrip}
-      />
-      <ConfirmDialog
-        open={confirmDelete}
-        title={`Eliminar a viagem a ${trip.destination.name}?`}
-        message="A mala, os eventos e o histórico desta viagem também são apagados."
-        confirmLabel="Eliminar"
-        cancelLabel="Cancelar"
-        destructive
-        onConfirm={() => deleteTrip(trip)}
-        onCancel={() => setConfirmDelete(false)}
       />
     </Screen>
   );

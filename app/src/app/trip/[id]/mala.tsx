@@ -9,7 +9,7 @@ import {
 } from 'lucide-react-native';
 import { useState } from 'react';
 import { Platform, Pressable, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { ItemRow } from '@/components/packing/ItemRow';
 import { ItemSheet, type ItemDraft } from '@/components/packing/ItemSheet';
@@ -175,7 +175,6 @@ export default function MalaScreen() {
                         key={item.id}
                         entering={FadeIn.duration(200)}
                         exiting={FadeOut.duration(150)}
-                        layout={LinearTransition.duration(260)}
                         style={{ borderTopWidth: 1, borderColor: colors.line }}
                       >
                         <ItemRow
@@ -191,7 +190,11 @@ export default function MalaScreen() {
         )}
         <View className="h-20" />
       </Screen>
-      <Fab accessibilityLabel="Adicionar item" onPress={() => setSheet({ open: true })} />
+      <Fab
+        label="Item"
+        accessibilityLabel="Adicionar item"
+        onPress={() => setSheet({ open: true })}
+      />
       <ItemSheet
         open={sheet.open}
         item={sheet.item}

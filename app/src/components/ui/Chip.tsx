@@ -21,6 +21,8 @@ export function Chip({ label, selected = false, onPress, className }: ChipProps)
       accessibilityRole="checkbox"
       accessibilityLabel={label}
       accessibilityState={{ checked: selected }}
+      popKey={selected}
+      haptic
       className={cn(
         'min-h-11 flex-row items-center gap-1.5 rounded-full border-2 px-4 ',
         selected ? 'border-gold bg-sun-soft' : 'border-line bg-surface',

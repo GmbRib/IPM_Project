@@ -1,13 +1,14 @@
 import { addHours, format, parse, parseISO, setHours, startOfHour } from 'date-fns';
 import { Trash2 } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { View } from 'react-native';
 
 import { FormTextField } from '@/components/form/FormFields';
-import { Banner, Button, Chip, ConfirmDialog, DateField, Text, Toggle } from '@/components/ui';
+import { Banner, Button, Chip, DateField, Text, Toggle } from '@/components/ui';
 import type { ISODate, TripEvent } from '@/data/types';
 import { overlapping, rangeLabel, toISODate, tripsOn } from '@/lib/calendar';
+import { confirm } from '@/lib/dialogs';
 import { eventSchema, type EventValues } from '@/lib/validation';
 import { zodResolver } from '@/lib/zodResolver';
 import { useData } from '@/stores/data';
@@ -39,7 +40,6 @@ export function EventForm({ event, initial }: Props) {
   const events = useData((s) => s.events);
   const { addEvent, updateEvent, removeEvent } = useData();
   const showToast = useUi((s) => s.showToast);
-  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const day = parseISO(event?.date ?? initial?.date ?? toISODate(new Date()));
   const { control, handleSubmit, setValue, formState } = useForm<EventValues>({
@@ -103,7 +103,14 @@ export function EventForm({ event, initial }: Props) {
 
   async function remove() {
     if (!event) return;
-    setConfirmDelete(false);
+    const ok = await confirm({
+      title: 'Eliminar evento?',
+      message: `"${event.title}" vai sair da tua agenda.`,
+      confirmLabel: 'Eliminar',
+      cancelLabel: 'Cancelar',
+      destructive: true,
+    });
+    if (!ok) return;
     const { id: _id, ...rest } = event;
     await removeEvent(event.id);
     goBack();
@@ -239,25 +246,7 @@ export function EventForm({ event, initial }: Props) {
         loading={formState.isSubmitting}
         onPress={handleSubmit(save)}
       />
-      {event && (
-        <Button
-          title="Eliminar evento"
-          variant="ghost"
-          icon={Trash2}
-          onPress={() => setConfirmDelete(true)}
-        />
-      )}
-
-      <ConfirmDialog
-        open={confirmDelete}
-        title="Eliminar evento?"
-        message={event && `"${event.title}" vai sair da tua agenda.`}
-        confirmLabel="Eliminar"
-        cancelLabel="Cancelar"
-        destructive
-        onConfirm={remove}
-        onCancel={() => setConfirmDelete(false)}
-      />
+      {event && <Button title="Eliminar evento" variant="ghost" icon={Trash2} onPress={remove} />}
     </View>
   );
 }

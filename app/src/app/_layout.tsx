@@ -17,7 +17,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { ToastHost } from '@/components/ui';
+import { DialogHost, ToastHost } from '@/components/ui';
 import { useSession } from '@/stores/session';
 import colors from '@/theme/colors';
 
@@ -78,6 +78,7 @@ export default function RootLayout() {
         </Stack.Protected>
       </Stack>
       <ToastHost />
+      <DialogHost />
     </GestureHandlerRootView>
   );
 }

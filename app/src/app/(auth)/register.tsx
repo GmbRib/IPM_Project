@@ -42,7 +42,7 @@ export default function RegisterScreen() {
     <Screen scroll>
       <Header leading="back" title="Criar conta" subtitle="Demora menos de um minuto." />
       <View className="mt-4 gap-4">
-        {errors.root?.message && <Banner tone="danger" message={errors.root.message} />}
+        {!!errors.root?.message && <Banner tone="danger" message={errors.root.message} />}
         <FormTextField
           control={control}
           name="email"

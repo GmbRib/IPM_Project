@@ -1,44 +1,35 @@
-import { Tabs } from 'expo-router';
-import { CalendarDays, Plane, UserRound } from 'lucide-react-native';
+import { NativeTabs } from 'expo-router/native-tabs';
 
 import colors from '@/theme/colors';
 
+/**
+ * iOS/Android: the system tab bar. On iOS 26 it's drawn in Liquid Glass and shrinks
+ * while scrolling down. The web version lives in _layout.web.tsx.
+ */
 export default function TabsLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        animation: 'shift',
-        sceneStyle: { backgroundColor: colors.cream },
-        tabBarActiveTintColor: colors['ember-text'],
-        tabBarInactiveTintColor: colors.muted,
-        tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.line,
-          minHeight: 64,
-          paddingTop: 6,
-        },
-        tabBarLabelStyle: { fontFamily: 'Nunito_700Bold', fontSize: 12 },
-      }}
+    <NativeTabs
+      tintColor={colors['ember-text']}
+      minimizeBehavior="onScrollDown"
+      // iOS 18 and older / Android only (iOS 26 glass picks its own background).
+      backgroundColor={colors.surface}
+      indicatorColor={colors['sun-soft']}
     >
-      <Tabs.Screen
-        name="viagens"
-        options={{ title: 'Viagens', tabBarIcon: ({ color }) => <Plane size={24} color={color} /> }}
-      />
-      <Tabs.Screen
-        name="calendario"
-        options={{
-          title: 'Calendário',
-          tabBarIcon: ({ color }) => <CalendarDays size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="perfil"
-        options={{
-          title: 'Perfil',
-          tabBarIcon: ({ color }) => <UserRound size={24} color={color} />,
-        }}
-      />
-    </Tabs>
+      <NativeTabs.Trigger name="viagens">
+        <NativeTabs.Trigger.Label>Viagens</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="airplane" md="flight" />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="calendario">
+        <NativeTabs.Trigger.Label>Calendário</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="calendar" md="calendar_month" />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="perfil">
+        <NativeTabs.Trigger.Label>Perfil</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'person.crop.circle', selected: 'person.crop.circle.fill' }}
+          md="person"
+        />
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

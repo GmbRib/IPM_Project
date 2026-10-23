@@ -6,6 +6,7 @@ import { Pressable, View } from 'react-native';
 import Animated, { FadeIn, SlideInLeft, SlideInRight } from 'react-native-reanimated';
 
 import { MonthGrid } from '@/components/calendar/MonthGrid';
+import { UpcomingList } from '@/components/calendar/UpcomingList';
 import { Button, Fab, Header, IconButton, Screen, Text } from '@/components/ui';
 import { todayISO } from '@/data/selectors';
 import { monthTitle } from '@/lib/calendar';
@@ -84,7 +85,7 @@ export default function CalendarioScreen() {
           </Animated.View>
         </View>
 
-        <View className="mt-3 flex-row items-center justify-between">
+        <View className="mb-6 mt-3 flex-row items-center justify-between">
           <Text variant="caption">Toca num dia para ver a agenda.</Text>
           {!isCurrentMonth && (
             <Button
@@ -98,9 +99,21 @@ export default function CalendarioScreen() {
             />
           )}
         </View>
+        <UpcomingList
+          today={today}
+          trips={trips}
+          events={events}
+          onDayPress={(day) => router.push({ pathname: '/day/[date]', params: { date: day } })}
+          onTripPress={(trip) => {
+            selectTrip(trip.id);
+            router.navigate('/viagens');
+          }}
+        />
+        {/* Room for the floating "+ Evento" button. */}
         <View className="h-20" />
       </Screen>
       <Fab
+        label="Evento"
         accessibilityLabel="Novo evento"
         onPress={() => router.push({ pathname: '/event/new', params: { date: today } })}
       />

@@ -88,7 +88,7 @@ export default function PerfilScreen() {
         </View>
       </FadeInView>
 
-      <View className="mt-6 gap-3">
+      <View className="mt-8">
         <Button
           title="Terminar sessão"
           variant="secondary"
@@ -96,23 +96,26 @@ export default function PerfilScreen() {
           fullWidth
           onPress={logout}
         />
-        {__DEV__ && (
-          <>
-            <Button
-              title="Ver componentes (dev)"
-              variant="ghost"
-              icon={Shapes}
-              onPress={() => router.push('/dev/kit')}
-            />
-            <Button
-              title="Repor dados de demonstração (dev)"
-              variant="ghost"
-              icon={RotateCcw}
-              onPress={resetDemo}
-            />
-          </>
-        )}
       </View>
+      {__DEV__ && (
+        <View className="mt-10 items-start gap-1 border-t border-line pt-4">
+          <Text variant="caption" className="font-body-bold">
+            Desenvolvimento
+          </Text>
+          <Button
+            title="Ver componentes (dev)"
+            variant="ghost"
+            icon={Shapes}
+            onPress={() => router.push('/dev/kit')}
+          />
+          <Button
+            title="Repor dados de demonstração (dev)"
+            variant="ghost"
+            icon={RotateCcw}
+            onPress={resetDemo}
+          />
+        </View>
+      )}
     </Screen>
   );
 }

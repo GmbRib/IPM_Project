@@ -1,12 +1,13 @@
 import { format, parseISO } from 'date-fns';
 import { Trash2 } from 'lucide-react-native';
-import { useRef, useState, type ComponentRef } from 'react';
+import { useRef, type ComponentRef } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { TextInput, View } from 'react-native';
 
 import { FormTextField } from '@/components/form/FormFields';
-import { Button, ConfirmDialog, DateField } from '@/components/ui';
+import { Button, DateField } from '@/components/ui';
 import type { DocumentType, TravelDocument } from '@/data/types';
+import { confirm } from '@/lib/dialogs';
 import { DOCUMENT_TYPES } from '@/lib/labels';
 import { deletePhoto } from '@/lib/photos';
 import { documentSchema, type DocumentValues } from '@/lib/validation';
@@ -28,7 +29,6 @@ type Props = {
 export function DocumentForm({ doc, type = 'cc' }: Props) {
   const userId = useSession((s) => s.user?.id);
   const { addDocument, updateDocument, removeDocument } = useData();
-  const [confirmDelete, setConfirmDelete] = useState(false);
   const numberRef = useRef<ComponentRef<typeof TextInput>>(null);
   const originalPhoto = doc?.photoUri;
 
@@ -61,6 +61,14 @@ export function DocumentForm({ doc, type = 'cc' }: Props) {
 
   async function remove() {
     if (!doc) return;
+    const ok = await confirm({
+      title: 'Eliminar documento?',
+      message: `O documento "${doc.name}"${doc.photoUri ? ' e a sua foto vão ser apagados' : ' vai ser apagado'} deste telemóvel.`,
+      confirmLabel: 'Eliminar',
+      cancelLabel: 'Cancelar',
+      destructive: true,
+    });
+    if (!ok) return;
     await removeDocument(doc.id);
     deletePhoto(doc.photoUri);
     goBack();
@@ -115,27 +123,7 @@ export function DocumentForm({ doc, type = 'cc' }: Props) {
         loading={formState.isSubmitting}
         onPress={handleSubmit(save)}
       />
-      {doc && (
-        <Button
-          title="Eliminar documento"
-          variant="ghost"
-          icon={Trash2}
-          onPress={() => setConfirmDelete(true)}
-        />
-      )}
-      <ConfirmDialog
-        open={confirmDelete}
-        title="Eliminar documento?"
-        message={
-          doc &&
-          `O documento "${doc.name}"${doc.photoUri ? ' e a sua foto vão ser apagados' : ' vai ser apagado'} deste telemóvel.`
-        }
-        confirmLabel="Eliminar"
-        cancelLabel="Cancelar"
-        destructive
-        onConfirm={remove}
-        onCancel={() => setConfirmDelete(false)}
-      />
+      {doc && <Button title="Eliminar documento" variant="ghost" icon={Trash2} onPress={remove} />}
     </View>
   );
 }

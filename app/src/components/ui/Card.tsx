@@ -21,7 +21,7 @@ export function Card({ title, onPress, accessibilityLabel, children, className }
   const body = (
     <>
       {!!title && (
-        <View className="mb-2 flex-row items-center justify-between">
+        <View className="mb-3 flex-row items-center justify-between">
           <Text variant="heading" className="text-lg">
             {title}
           </Text>
@@ -31,16 +31,16 @@ export function Card({ title, onPress, accessibilityLabel, children, className }
       {children}
     </>
   );
-  const box = cn('rounded-card border border-line bg-surface p-4', className);
+  const box = cn('rounded-card border border-line bg-surface p-5', className);
 
   if (!onPress) return <View className={box}>{body}</View>;
   return (
     <PressableScale
       onPress={onPress}
-      pressedScale={0.98}
+      bounce="soft"
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? title}
-      className={cn(box, '')}
+      className={box}
     >
       {body}
     </PressableScale>

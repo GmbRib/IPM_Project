@@ -4,7 +4,8 @@ import { useForm } from 'react-hook-form';
 import { TextInput, View } from 'react-native';
 
 import { FormPasswordField, FormTextField } from '@/components/form/FormFields';
-import { Banner, Button, ConfirmDialog, Header, Screen, Text } from '@/components/ui';
+import { Banner, Button, Header, Screen, Text } from '@/components/ui';
+import { confirm } from '@/lib/dialogs';
 import { AuthError } from '@/data/repositories';
 import { DEMO_EMAIL, DEMO_PASSWORD } from '@/data/seed';
 import { zodResolver } from '@/lib/zodResolver';
@@ -14,7 +15,6 @@ import { useSession } from '@/stores/session';
 export default function LoginScreen() {
   const login = useSession((s) => s.login);
   const [serverError, setServerError] = useState<string>();
-  const [forgotOpen, setForgotOpen] = useState(false);
   const passwordRef = useRef<ComponentRef<typeof TextInput>>(null);
 
   const {
@@ -42,7 +42,7 @@ export default function LoginScreen() {
     <Screen scroll>
       <Header leading="back" title="Entrar" subtitle="Bem-vindo(a) de volta!" />
       <View className="mt-4 gap-4">
-        {serverError && <Banner tone="danger" message={serverError} />}
+        {!!serverError && <Banner tone="danger" message={serverError} />}
         <FormTextField
           control={control}
           name="email"
@@ -72,7 +72,14 @@ export default function LoginScreen() {
             variant="ghost"
             size="sm"
             className="self-end px-0"
-            onPress={() => setForgotOpen(true)}
+            onPress={() =>
+              confirm({
+                title: 'Recuperar palavra-passe',
+                message:
+                  'Na versão final enviamos-te um email com um link para criares uma nova palavra-passe. Neste protótipo ainda não está disponível.',
+                confirmLabel: 'Percebi',
+              })
+            }
           />
         </View>
         <Button
@@ -101,15 +108,6 @@ export default function LoginScreen() {
           />
         )}
       </View>
-
-      <ConfirmDialog
-        open={forgotOpen}
-        title="Recuperar palavra-passe"
-        message="Na versão final enviamos-te um email com um link para criares uma nova palavra-passe. Neste protótipo ainda não está disponível."
-        confirmLabel="Percebi"
-        onConfirm={() => setForgotOpen(false)}
-        onCancel={() => setForgotOpen(false)}
-      />
     </Screen>
   );
 }

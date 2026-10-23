@@ -1,3 +1,6 @@
+import * as Haptics from 'expo-haptics';
+import { Platform } from 'react-native';
+
 import type { TripEvent } from '@/data/types';
 import { useData } from '@/stores/data';
 import { useUi } from '@/stores/ui';
@@ -10,6 +13,9 @@ export function useSuggestionActions() {
   return {
     async accept(e: TripEvent) {
       await updateEvent(e.id, { status: 'accepted' });
+      if (Platform.OS !== 'web') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
       showToast({
         message: `"${e.title}" adicionado à tua agenda`,
         actionLabel: 'Anular',

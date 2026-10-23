@@ -59,71 +59,88 @@ export function ProfileForm({ submitLabel, onSaved }: Props) {
         returnKeyType="done"
       />
 
-      <View className="gap-1">
-        <Text variant="heading">Precisas de algo especial?</Text>
-        <Text variant="caption">Juntamos à mala o que for preciso. Só tu vês estes dados.</Text>
+      <View className="gap-3">
+        <View className="gap-1">
+          <Text variant="heading">Precisas de algo especial?</Text>
+          <Text variant="caption">Juntamos à mala o que for preciso. Só tu vês estes dados.</Text>
+        </View>
 
-        <Controller
-          control={control}
-          name="wheelchair"
-          render={({ field }) => (
-            <Toggle
-              label="Uso cadeira de rodas"
-              value={field.value}
-              onValueChange={field.onChange}
-              className="mt-2"
+        <View className="rounded-card border border-line bg-surface px-4">
+          <Controller
+            control={control}
+            name="wheelchair"
+            render={({ field }) => (
+              <Toggle
+                label="Uso cadeira de rodas"
+                value={field.value}
+                onValueChange={field.onChange}
+                className="py-3"
+              />
+            )}
+          />
+          <View className="h-px bg-line" />
+
+          <Controller
+            control={control}
+            name="hasAllergies"
+            render={({ field }) => (
+              <Toggle
+                label="Tenho alergias"
+                value={field.value}
+                onValueChange={field.onChange}
+                className="py-3"
+              />
+            )}
+          />
+          {hasAllergies && (
+            <Controller
+              control={control}
+              name="allergies"
+              render={({ field, fieldState }) => (
+                <TagInput
+                  label="Quais?"
+                  placeholder="Ex.: pólen"
+                  values={field.value}
+                  onChange={field.onChange}
+                  suggestions={ALLERGY_SUGGESTIONS}
+                  error={fieldState.error?.message}
+                  className="pb-4"
+                />
+              )}
             />
           )}
-        />
+          <View className="h-px bg-line" />
 
-        <Controller
-          control={control}
-          name="hasAllergies"
-          render={({ field }) => (
-            <Toggle label="Tenho alergias" value={field.value} onValueChange={field.onChange} />
-          )}
-        />
-        {hasAllergies && (
           <Controller
             control={control}
-            name="allergies"
-            render={({ field, fieldState }) => (
-              <TagInput
-                label="Quais?"
-                placeholder="Ex.: pólen"
-                values={field.value}
-                onChange={field.onChange}
-                suggestions={ALLERGY_SUGGESTIONS}
-                error={fieldState.error?.message}
-                className="mb-3"
+            name="hasMedication"
+            render={({ field }) => (
+              <Toggle
+                label="Tomo medicação"
+                value={field.value}
+                onValueChange={field.onChange}
+                className="py-3"
               />
             )}
           />
-        )}
-
-        <Controller
-          control={control}
-          name="hasMedication"
-          render={({ field }) => (
-            <Toggle label="Tomo medicação" value={field.value} onValueChange={field.onChange} />
+          {hasMedication && (
+            <Controller
+              control={control}
+              name="medication"
+              render={({ field, fieldState }) => (
+                <TagInput
+                  label="Qual?"
+                  placeholder="Ex.: insulina"
+                  values={field.value}
+                  onChange={field.onChange}
+                  suggestions={MEDICATION_SUGGESTIONS}
+                  error={fieldState.error?.message}
+                  className="pb-4"
+                />
+              )}
+            />
           )}
-        />
-        {hasMedication && (
-          <Controller
-            control={control}
-            name="medication"
-            render={({ field, fieldState }) => (
-              <TagInput
-                label="Qual?"
-                placeholder="Ex.: insulina"
-                values={field.value}
-                onChange={field.onChange}
-                suggestions={MEDICATION_SUGGESTIONS}
-                error={fieldState.error?.message}
-              />
-            )}
-          />
-        )}
+        </View>
       </View>
 
       <Button

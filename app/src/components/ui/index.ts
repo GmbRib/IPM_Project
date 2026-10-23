@@ -5,6 +5,7 @@ export { Card } from './Card';
 export { Chip } from './Chip';
 export { ConfirmDialog } from './ConfirmDialog';
 export { DateField } from './DateField';
+export { DialogHost } from './DialogHost';
 export { EmptyState } from './EmptyState';
 export { Fab } from './Fab';
 export { FadeInView } from './FadeInView';

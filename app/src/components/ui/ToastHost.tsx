@@ -27,7 +27,7 @@ export function ToastHost() {
   return (
     <Animated.View
       key={toast.id}
-      entering={FadeInDown.duration(200)}
+      entering={FadeInDown.springify().damping(18).stiffness(220)}
       exiting={FadeOutDown.duration(150)}
       pointerEvents="box-none"
       style={{ position: 'absolute', left: 16, right: 16, bottom: insets.bottom + 80 }}

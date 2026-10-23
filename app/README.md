@@ -65,10 +65,19 @@ npm test             # testes unitários (motor da mala, sugestões, documentos,
 - Tudo respeita "Reduzir movimento" do sistema (o Reanimated faz isso por defeito; o avião salta para o fim).
 - Com o React Compiler, usa `.get()`/`.set()` nos shared values do Reanimated (não `.value`).
 
+## iPhone nativo (Liquid Glass)
+
+- No iOS 26 a barra de separadores é a nativa (`NativeTabs`, em `(tabs)/_layout.tsx`); a web usa `(tabs)/_layout.web.tsx`.
+- `useGlass()` (`@/lib/glass`) decide se um componente se desenha em vidro: iOS 26 **e** "Reduzir transparência" desligado. `Button`, `IconButton` (variante `glass`), `Fab` e `BottomSheet` já tratam disto; no resto (web, Android, iOS antigo) usam o estilo sólido "chunky".
+- Não uses `isInteractive` no `GlassView` dentro de botões: o vidro fica com o toque e o botão nunca recebe o `onPress`.
+- Confirmações e menus: `confirm()` / `showActions()` (`@/lib/dialogs`). No telemóvel são o alerta e o menu nativos; na web desenha-os o `DialogHost`.
+- No Expo Go, abre o projeto com `?__expo_disable_fab=1` no link para esconder o botão de ferramentas do Expo Go. Se a atualização a quente não aplicar uma alteração, fecha e reabre a app.
+
 ## Regras rápidas
 
 - Seletores do Zustand devolvem valores estáveis: `useData((s) => s.packing)` e filtra fora. Um seletor que cria um array novo (`s.packing.filter(...)`) entra em ciclo infinito.
 - Para voltar atrás usa `goBack()` (`@/lib/navigation`): funciona mesmo sem histórico (link direto, refresh na web).
+- Texto opcional dentro de JSX: `{!!texto && …}` (não `{texto && …}`): um texto vazio dentro de uma `View` dá erro no telemóvel.
 - Junta classes com `cn()` (`@/lib/cn`): resolve conflitos (`cn('text-ink', 'text-danger')` → vence a última).
 - Usa sempre `Text` de `@/components/ui` (não o do React Native), para as fontes ficarem certas.
 - Texto laranja → `text-ember-text` (`ember` só para ícones e formas grandes: o contraste não chega para texto).

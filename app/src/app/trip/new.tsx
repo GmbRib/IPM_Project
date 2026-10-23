@@ -11,7 +11,6 @@ import {
   Banner,
   Button,
   Chip,
-  ConfirmDialog,
   DateField,
   Header,
   Screen,
@@ -22,6 +21,7 @@ import {
 } from '@/components/ui';
 import { generatePackingList } from '@/domain/packing';
 import { suggestEvents } from '@/domain/suggestions';
+import { confirm } from '@/lib/dialogs';
 import { ACTIVITIES } from '@/lib/labels';
 import { tripSchema, type TripInput, type TripValues } from '@/lib/validation';
 import { zodResolver } from '@/lib/zodResolver';
@@ -51,7 +51,6 @@ export default function NewTripScreen() {
   const [step, setStep] = useState(1);
   // 1 = forward, -1 = back: new steps slide in from that side.
   const [direction, setDirection] = useState(1);
-  const [confirmExit, setConfirmExit] = useState(false);
   const [creating, setCreating] = useState(false);
   const [failed, setFailed] = useState(false);
   // Resolved by the take-off animation; we leave once both it and the work are done.
@@ -81,8 +80,14 @@ export default function NewTripScreen() {
   }
 
   function close() {
-    if (formState.isDirty) setConfirmExit(true);
-    else goBack();
+    if (!formState.isDirty) return goBack();
+    confirm({
+      title: 'Sair sem criar a viagem?',
+      message: 'O que preencheste vai perder-se.',
+      confirmLabel: 'Sair',
+      cancelLabel: 'Continuar a preencher',
+      destructive: true,
+    }).then((ok) => ok && goBack());
   }
 
   async function create(v: TripValues) {
@@ -320,20 +325,6 @@ export default function NewTripScreen() {
           />
         )}
       </View>
-
-      <ConfirmDialog
-        open={confirmExit}
-        title="Sair sem criar a viagem?"
-        message="O que preencheste vai perder-se."
-        confirmLabel="Sair"
-        cancelLabel="Continuar a preencher"
-        destructive
-        onConfirm={() => {
-          setConfirmExit(false);
-          goBack();
-        }}
-        onCancel={() => setConfirmExit(false)}
-      />
     </Screen>
   );
 }

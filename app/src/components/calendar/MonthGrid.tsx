@@ -51,7 +51,7 @@ export function MonthGrid({ month, today, trips, events, onDayPress, onTripPress
       {width > 0 &&
         monthWeeks(month).map((week) => {
           const bars = weekTripBars(week, trips);
-          const lanes = Math.max(1, ...bars.map((b) => b.lane + 1));
+          const lanes = Math.max(0, ...bars.map((b) => b.lane + 1));
           const rowH = NUMBER_H + lanes * (BAR_H + BAR_GAP) + DOTS_H;
 
           return (

@@ -9,6 +9,7 @@ import type { Trip } from '@/data/types';
 import { describeWeather, formatTemp } from '@/domain/weatherCodes';
 import { useForecast } from '@/hooks/useForecast';
 import { dayTitle } from '@/lib/calendar';
+import { cn } from '@/lib/cn';
 import type { DayForecast } from '@/services/weather';
 import colors from '@/theme/colors';
 
@@ -60,41 +61,51 @@ export function WeatherCard({ trip, unit }: { trip: Trip; unit: 'C' | 'F' }) {
       </View>
     );
   } else {
+    // Up to 4 days fit side by side; longer trips scroll sideways.
+    const fits = result.days.length <= 4;
+    const days = result.days.map((d) => {
+      const w = describeWeather(d.code);
+      return (
+        <Pressable
+          key={d.date}
+          onPress={() => {
+            setSelected(d);
+            setSheetOpen(true);
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={`${format(parseISO(d.date), 'EEEE', { locale: pt })}: ${w.label}, máxima ${formatTemp(d.max, unit)}, mínima ${formatTemp(d.min, unit)}`}
+          accessibilityHint="Mostra mais detalhes"
+          className={cn(
+            'items-center gap-1 rounded-2xl border border-line bg-cream px-1 py-2.5 active:bg-sun-soft',
+            fits ? 'flex-1' : 'w-24',
+          )}
+        >
+          <Text variant="label" className="font-body-bold">
+            {weekday(d.date)}
+          </Text>
+          <w.icon size={26} color={colors.ember} />
+          <Text variant="caption" numberOfLines={2} className="text-center">
+            {w.label}
+          </Text>
+          <Text variant="label">
+            {formatTemp(d.max, unit)} <Text variant="caption">{formatTemp(d.min, unit)}</Text>
+          </Text>
+        </Pressable>
+      );
+    });
     body = (
       <>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerClassName="gap-2"
-        >
-          {result.days.map((d) => {
-            const w = describeWeather(d.code);
-            return (
-              <Pressable
-                key={d.date}
-                onPress={() => {
-                  setSelected(d);
-                  setSheetOpen(true);
-                }}
-                accessibilityRole="button"
-                accessibilityLabel={`${format(parseISO(d.date), 'EEEE', { locale: pt })}: ${w.label}, máxima ${formatTemp(d.max, unit)}, mínima ${formatTemp(d.min, unit)}`}
-                accessibilityHint="Mostra mais detalhes"
-                className="w-24 items-center gap-1 rounded-2xl border border-line bg-cream p-2 active:bg-sun-soft"
-              >
-                <Text variant="label" className="font-body-bold">
-                  {weekday(d.date)}
-                </Text>
-                <w.icon size={26} color={colors.ember} />
-                <Text variant="caption" numberOfLines={1}>
-                  {w.label}
-                </Text>
-                <Text variant="label">
-                  {formatTemp(d.max, unit)} <Text variant="caption">{formatTemp(d.min, unit)}</Text>
-                </Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
+        {fits ? (
+          <View className="flex-row gap-2">{days}</View>
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerClassName="gap-2"
+          >
+            {days}
+          </ScrollView>
+        )}
         {result.stale && (
           <Text variant="caption" className="mt-2">
             Sem ligação: a mostrar a última previsão guardada.

@@ -118,7 +118,7 @@ export default function DayScreen() {
           </Animated.View>
         </ScrollView>
       </Screen>
-      <Fab accessibilityLabel="Novo evento neste dia" onPress={() => openNew()} />
+      <Fab label="Evento" accessibilityLabel="Novo evento neste dia" onPress={() => openNew()} />
     </View>
   );
 }
