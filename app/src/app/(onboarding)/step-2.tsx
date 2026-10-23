@@ -1,8 +1,7 @@
-import { router } from 'expo-router';
 import { View } from 'react-native';
 
 import { AddDocumentButtons } from '@/components/documents/AddDocumentButtons';
-import { DocumentCard } from '@/components/documents/DocumentCard';
+import { DocumentList } from '@/components/documents/DocumentList';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { Button, Screen, Text } from '@/components/ui';
 import { useData } from '@/stores/data';
@@ -26,13 +25,7 @@ export default function OnboardingStep2() {
         {documents.length > 0 && (
           <View className="gap-2">
             <Text variant="label">Documentos adicionados</Text>
-            {documents.map((d) => (
-              <DocumentCard
-                key={d.id}
-                doc={d}
-                onPress={() => router.push({ pathname: '/document', params: { id: d.id } })}
-              />
-            ))}
+            <DocumentList documents={documents} />
           </View>
         )}
 

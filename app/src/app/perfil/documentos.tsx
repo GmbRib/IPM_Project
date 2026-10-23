@@ -3,7 +3,7 @@ import { ChevronRight, Plus } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
-import { DocumentCard } from '@/components/documents/DocumentCard';
+import { DocumentList } from '@/components/documents/DocumentList';
 import { BottomSheet, Button, Header, Screen, Text } from '@/components/ui';
 import type { DocumentType } from '@/data/types';
 import { DOCUMENT_TYPES } from '@/lib/labels';
@@ -26,17 +26,9 @@ export default function MeusDocumentosScreen() {
             viagem.
           </Text>
         ) : (
-          <View className="gap-3">
-            {[...documents]
-              .sort((a, b) => a.expiresAt.localeCompare(b.expiresAt))
-              .map((d) => (
-                <DocumentCard
-                  key={d.id}
-                  doc={d}
-                  onPress={() => router.push({ pathname: '/document', params: { id: d.id } })}
-                />
-              ))}
-          </View>
+          <DocumentList
+            documents={[...documents].sort((a, b) => a.expiresAt.localeCompare(b.expiresAt))}
+          />
         )}
         <Button
           title="Adicionar documento"

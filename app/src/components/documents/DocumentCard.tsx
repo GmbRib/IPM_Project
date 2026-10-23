@@ -10,7 +10,8 @@ import { cn } from '@/lib/cn';
 import { DOCUMENT_TYPES } from '@/lib/labels';
 import colors from '@/theme/colors';
 
-const STATUS: Record<
+/** How each document status looks (shared by the card and the detail sheet). */
+export const DOCUMENT_STATUS: Record<
   DocumentStatus,
   { label: string; icon: typeof CircleCheck; color: string; text: string }
 > = {
@@ -24,12 +25,17 @@ const STATUS: Record<
   expired: { label: 'Expirado', icon: CircleX, color: colors.danger, text: 'text-danger' },
 };
 
-type Props = { doc: TravelDocument; onPress?: () => void };
+type Props = {
+  doc: TravelDocument;
+  onPress?: () => void;
+  /** What tapping does, for screen readers (e.g. "Abre para ver"). */
+  hint?: string;
+};
 
 /** One saved document: photo or type icon, name, number, expiry and status. */
-export function DocumentCard({ doc, onPress }: Props) {
+export function DocumentCard({ doc, onPress, hint = 'Abre para editar' }: Props) {
   const type = DOCUMENT_TYPES[doc.type];
-  const status = STATUS[documentStatus(doc)];
+  const status = DOCUMENT_STATUS[documentStatus(doc)];
   const expires = format(parseISO(doc.expiresAt), 'dd/MM/yyyy');
 
   return (
@@ -38,7 +44,7 @@ export function DocumentCard({ doc, onPress }: Props) {
       disabled={!onPress}
       accessibilityRole="button"
       accessibilityLabel={`${doc.name}, número ${doc.number}, válido até ${expires}, ${status.label}`}
-      accessibilityHint="Abre para editar"
+      accessibilityHint={hint}
       className="flex-row items-center gap-3 rounded-card border border-line bg-surface p-3 active:opacity-80"
     >
       <View className="h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-sun-soft">
