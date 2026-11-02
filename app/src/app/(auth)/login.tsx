@@ -47,7 +47,7 @@ export default function LoginScreen() {
           control={control}
           name="email"
           label="Email"
-          placeholder="ana@mail.pt"
+          placeholder="teresa.romao@email.pt"
           autoCapitalize="none"
           autoComplete="email"
           keyboardType="email-address"
@@ -61,6 +61,7 @@ export default function LoginScreen() {
             control={control}
             name="password"
             label="Palavra-passe"
+            placeholder="********"
             ref={passwordRef}
             autoComplete="current-password"
             textContentType="password"
@@ -101,7 +102,7 @@ export default function LoginScreen() {
         </View>
         {__DEV__ && (
           <Button
-            title="Entrar com a conta demo (Ana)"
+            title="Entrar com a conta demo"
             variant="secondary"
             size="sm"
             onPress={() => signIn({ email: DEMO_EMAIL, password: DEMO_PASSWORD })}

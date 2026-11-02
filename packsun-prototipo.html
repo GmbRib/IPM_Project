@@ -471,11 +471,11 @@ function freshState(){
 }
 S = freshState();
 function seedAna(){
-  S.user = {name:'Ana Silva', email:'ana.silva@email.pt'};
-  S.profile = {name:'Ana Silva', with:'casal', glasses:true, meds:true};
+  S.user = {name:'Professora Teresa', email:'teresa.romao@email.pt'};
+  S.profile = {name:'Professora Teresa', with:'casal', glasses:true, meds:true};
   S.docs = [
-    {id:'d1', type:'cc', number:'14839201 7 ZY2', expiry:'2026-09-14', name:'Ana Maria Silva'},
-    {id:'d2', type:'carta', number:'L-1483920 1', expiry:'2033-05-02', name:'Ana Maria Silva'},
+    {id:'d1', type:'cc', number:'14839201 7 ZY2', expiry:'2026-09-14', name:'Teresa Romão'},
+    {id:'d2', type:'carta', number:'L-1483920 1', expiry:'2033-05-02', name:'Teresa Romão'},
   ];
   S.history = HISTORY.slice();
   const porto = makeTrip({dest:'porto', start:'2026-10-26', end:'2026-10-27', trav:1, kids:0, purpose:'trabalho', acts:['reuniao','jantar']}, S.profile, S.history);
@@ -921,13 +921,13 @@ const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 A.doLogin = () => { const email = $('le').value.trim(), pw = $('lp').value;
   if (!email || !pw) return go('login', {email, err:'Preenche o email e a palavra-passe.', errE:!email, errP:!pw}, {replace:true});
   if (!isEmail(email)) return go('login', {email, err:'O email não parece válido. Ex.: nome@email.pt', errE:true}, {replace:true});
-  seedAna(); S.stack=[]; go('home'); toast('Bem-vinda de volta, Ana!', {icon:'👋'}); };
+  seedAna(); S.stack=[]; go('home'); toast('Bem-vinda de volta, Professora, Teresas!', {icon:'👋'}); };
 A.loginWith = () => go('login', {email:S.p.email}, {replace:true});
 A.forgot = () => toast('Enviámos um email para recuperares a palavra-passe.', {icon:'✉️'});
 A.doRegister = () => { const name = $('rn').value.trim(), email = $('re').value.trim(), pw = $('rp').value; const e = {};
   if (!name) e.n = 'Escreve o teu nome.'; if (!isEmail(email)) e.e = email?'O email não parece válido. Ex.: nome@email.pt':'Escreve o teu email.'; if (pw.length<8) e.p = 'A palavra-passe tem de ter pelo menos 8 caracteres.';
   if (Object.keys(e).length) return go('register', {name, email, e}, {replace:true});
-  if (norm(email)==='ana.silva@email.pt') return go('register', {name, email, exists:true}, {replace:true});
+  if (norm(email)==='teresa.romao@email.pt') return go('register', {name, email, exists:true}, {replace:true});
   S.user = {name, email}; S.profile.name = name; go('profile', {}, {replace:true}); toast('Conta criada', {icon:'✓'}); };
 A.setWith = el => { S.profile.with = el.dataset.v; render(); };
 A.toggleProf = el => { const k = el.dataset.k; S.profile[k] = !S.profile[k]; render(); if (S.screen==='perfil') toast(S.profile[k]?'Vamos incluir isto nas próximas listas':'Removido das próximas listas'); };
@@ -1084,7 +1084,7 @@ function renderPanel(){
   const el = $('panel'); if (!el || el.dataset.ok) return; el.dataset.ok = 1;
   el.innerHTML = `<div class="logo"><img src="${ICON}" alt=""><div><h2>Pack&amp;Sun · protótipo</h2><span class="small muted">Painel do facilitador (não aparece no telemóvel)</span></div></div>
   ${TASKS.map((t,i)=>`<div class="pt"><div class="grow"><b>${t[0]} · ${t[1]}</b><span>${t[2]}</span></div><button class="go" data-a="task" data-i="${i}">Ir</button></div>`).join('')}
-  <p class="small mt12"><b>Dados de teste</b></p><p class="small muted mt4" style="line-height:1.5">Hoje (simulado): 7 out 2026 · Conta existente: <b>ana.silva@email.pt</b> (qualquer palavra-passe) · Destino inexistente: «Atlântida» · CC válido: <b>12345678 9 ZX4</b></p>
+  <p class="small mt12"><b>Dados de teste</b></p><p class="small muted mt4" style="line-height:1.5">Hoje (simulado): 7 out 2026 · Conta existente: <b>teresa.romao@email.pt</b> (qualquer palavra-passe) · Destino inexistente: «Atlântida» · CC válido: <b>12345678 9 ZX4</b></p>
   <button class="reset" data-a="task" data-i="0">↺ Recomeçar do início</button>`;
 }
 A.task = el => { closeOv(true); $('toast').innerHTML=''; TASKS[+el.dataset.i][3](); };

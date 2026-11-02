@@ -14,7 +14,7 @@ import type {
 // Demo account used in development and in user tests (plan §8, Fase 7).
 // Dates are relative to the day the data is created, so the demo never goes stale.
 // Created on 19 Oct 2026, they match the sketches (Milão 20–22 Out, Genebra 27 Out–2 Nov…).
-export const DEMO_EMAIL = 'ana@packsun.pt';
+export const DEMO_EMAIL = 'teresa.romao@email.pt';
 export const DEMO_PASSWORD = 'ana12345';
 
 const USER_ID = 'demo-user-ana';
@@ -53,7 +53,7 @@ export function buildDemoData(today: Date) {
       id: USER_ID,
       email: DEMO_EMAIL,
       password: DEMO_PASSWORD,
-      name: 'Ana',
+      name: 'Professora Teresa',
       conditions: { wheelchair: false, allergies: ['Pólen'], medication: [] },
       onboarded: true,
       createdAt,
