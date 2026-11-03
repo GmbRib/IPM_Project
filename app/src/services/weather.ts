@@ -33,7 +33,10 @@ const TTL_MS = 60 * 60 * 1000;
 
 type Cached = { at: number; days: DayForecast[] };
 
-export async function getTripForecast(trip: Trip, today = todayISO()): Promise<ForecastResult> {
+export async function getTripForecast(
+  trip: Pick<Trip, 'destination' | 'startDate' | 'endDate'>,
+  today = todayISO(),
+): Promise<ForecastResult> {
   const { lat, lon } = trip.destination;
   if (lat == null || lon == null) return { status: 'no-location' };
   if (trip.endDate < today) return { status: 'past' };

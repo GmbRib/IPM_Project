@@ -5,7 +5,7 @@ import { TextInput, View } from 'react-native';
 
 import { FormPasswordField, FormTextField } from '@/components/form/FormFields';
 import { Banner, Button, Header, Screen, Text } from '@/components/ui';
-import { AuthError } from '@/data/repositories';
+import { ApiError } from '@/data/api';
 import { zodResolver } from '@/lib/zodResolver';
 import { PASSWORD_MIN, registerSchema, type RegisterValues } from '@/lib/validation';
 import { useSession } from '@/stores/session';
@@ -30,10 +30,15 @@ export default function RegisterScreen() {
     try {
       await register(email, password);
     } catch (err) {
-      if (err instanceof AuthError && err.code === 'email_taken') {
+      if (err instanceof ApiError && err.code === 'email_taken') {
         setError('email', { message: err.message }, { shouldFocus: true });
       } else {
-        setError('root', { message: 'Não foi possível criar a conta. Tenta outra vez.' });
+        setError('root', {
+          message:
+            err instanceof ApiError && err.code === 'network'
+              ? err.message
+              : 'Não foi possível criar a conta. Tenta outra vez.',
+        });
       }
     }
   }

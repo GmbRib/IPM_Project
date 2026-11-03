@@ -51,7 +51,7 @@ const GENERIC: Partial<Record<Activity, (city: string) => Idea>> = {
 const MAX_SUGGESTIONS = 4;
 
 export function suggestEvents(
-  trip: Pick<Trip, 'id' | 'userId' | 'startDate' | 'endDate' | 'activities' | 'destination'>,
+  trip: Pick<Trip, 'id' | 'createdBy' | 'startDate' | 'endDate' | 'activities' | 'destination'>,
 ): NewOf<TripEvent>[] {
   const city = trip.destination.name;
   const known = PLACES[city.toLowerCase()] ?? {};
@@ -62,7 +62,7 @@ export function suggestEvents(
     .filter((idea): idea is Idea => !!idea)
     .slice(0, MAX_SUGGESTIONS)
     .map((idea, i) => ({
-      userId: trip.userId,
+      userId: trip.createdBy,
       tripId: trip.id,
       // Spread over the trip, starting on the first day.
       date: format(addDays(parseISO(trip.startDate), i % days), 'yyyy-MM-dd'),

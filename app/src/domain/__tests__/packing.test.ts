@@ -13,9 +13,11 @@ const base: PackingInput = {
   conditions: { wheelchair: false, allergies: [], medication: [] },
 };
 
-const names = (input: PackingInput) => generatePackingList(input, 't1').map((i) => i.name);
+const BAG = { tripId: 't1', memberId: 'u1' };
+
+const names = (input: PackingInput) => generatePackingList(input, BAG).map((i) => i.name);
 const qty = (input: PackingInput, name: string) =>
-  generatePackingList(input, 't1').find((i) => i.name === name)?.quantity;
+  generatePackingList(input, BAG).find((i) => i.name === name)?.quantity;
 
 describe('generatePackingList', () => {
   it('counts trip days inclusively', () => {
@@ -23,10 +25,12 @@ describe('generatePackingList', () => {
   });
 
   it('always includes the basics, tied to the trip', () => {
-    const items = generatePackingList(base, 't1');
-    expect(items.every((i) => i.tripId === 't1' && !i.packed && i.source === 'generated')).toBe(
-      true,
-    );
+    const items = generatePackingList(base, BAG);
+    expect(
+      items.every(
+        (i) => i.tripId === 't1' && i.memberId === 'u1' && !i.packed && i.source === 'generated',
+      ),
+    ).toBe(true);
     expect(names(base)).toEqual(
       expect.arrayContaining(['Escova de dentes', 'Roupa interior', 'Pijama']),
     );
@@ -120,7 +124,7 @@ describe('generatePackingList', () => {
         unused: [{ name: 'T-shirt', qty: 3 }],
       },
     };
-    const items = generatePackingList(input, 't1');
+    const items = generatePackingList(input, BAG);
     expect(items.find((i) => i.name === 'Carregador do telemóvel')?.source).toBe('history');
     expect(items.find((i) => i.name === 'Tampões para os ouvidos')).toMatchObject({
       source: 'history',

@@ -6,7 +6,9 @@ import { View } from 'react-native';
 
 import { FormTextField } from '@/components/form/FormFields';
 import { Banner, Button, Chip, DateField, Text, Toggle } from '@/components/ui';
+import { roleOf } from '@/data/selectors';
 import type { ISODate, TripEvent } from '@/data/types';
+import { can } from '@/domain/permissions';
 import { overlapping, rangeLabel, toISODate, tripsOn } from '@/lib/calendar';
 import { confirm } from '@/lib/dialogs';
 import { eventSchema, type EventValues } from '@/lib/validation';
@@ -36,7 +38,11 @@ function defaultStart(day: Date, time?: string) {
 
 export function EventForm({ event, initial }: Props) {
   const userId = useSession((s) => s.user?.id);
-  const trips = useData((s) => s.trips);
+  const allTrips = useData((s) => s.trips);
+  const members = useData((s) => s.members);
+  // A trip's agenda is its organisers': only those trips can be picked.
+  const trips = allTrips.filter((t) => can(roleOf(members, t.id, userId), 'events.manage'));
+  const initialTripId = trips.find((t) => t.id === initial?.tripId)?.id;
   const events = useData((s) => s.events);
   const { addEvent, updateEvent, removeEvent } = useData();
   const showToast = useUi((s) => s.showToast);
@@ -51,7 +57,7 @@ export function EventForm({ event, initial }: Props) {
       start: event ? timeOn(day, event.startTime) : defaultStart(day, initial?.time),
       end: event?.endTime ? timeOn(day, event.endTime) : null,
       location: event?.location ?? '',
-      tripId: event?.tripId ?? initial?.tripId ?? tripsOn(trips, toISODate(day))[0]?.id ?? null,
+      tripId: event?.tripId ?? initialTripId ?? tripsOn(trips, toISODate(day))[0]?.id ?? null,
       notes: event?.notes ?? '',
     },
   });
@@ -97,7 +103,7 @@ export function EventForm({ event, initial }: Props) {
       status: 'accepted' as const,
     };
     if (event) await updateEvent(event.id, data);
-    else await addEvent({ ...data, userId, kind: 'user' });
+    else await addEvent({ ...data, kind: 'user' });
     goBack();
   }
 

@@ -1,6 +1,15 @@
 import { differenceInCalendarDays, parseISO } from 'date-fns';
 
-import type { Activity, Category, NewOf, PackingItem, Trip, TripReview, User } from '@/data/types';
+import type {
+  Activity,
+  Category,
+  ID,
+  NewOf,
+  PackingItem,
+  Trip,
+  TripReview,
+  User,
+} from '@/data/types';
 import type { DayForecast } from '@/services/weather';
 
 import { needsPassport, needsPlugAdapter } from './countries';
@@ -32,11 +41,14 @@ const MILD = 15;
 const isRainCode = (code: number) =>
   (code >= 51 && code <= 67) || (code >= 80 && code <= 82) || code >= 95;
 
+/** Whose bag the generated items go into. */
+export type Bag = { tripId: ID; memberId: ID };
+
 export function tripDays(trip: Pick<Trip, 'startDate' | 'endDate'>) {
   return differenceInCalendarDays(parseISO(trip.endDate), parseISO(trip.startDate)) + 1;
 }
 
-export function generatePackingList(input: PackingInput, tripId: string): NewOf<PackingItem>[] {
+export function generatePackingList(input: PackingInput, bag: Bag): NewOf<PackingItem>[] {
   const { trip, conditions, forecast, baseReview } = input;
   const days = Math.min(tripDays(trip), MAX_DAYS);
   const people = trip.adults + trip.children;
@@ -124,7 +136,7 @@ export function generatePackingList(input: PackingInput, tripId: string): NewOf<
   if (conditions.medication.length) add(['Receitas médicas', 'Documentos', 1]);
 
   const items = merge(lines).map(([name, category, quantity]): NewOf<PackingItem> => ({
-    tripId,
+    ...bag,
     name,
     category,
     quantity,
@@ -132,7 +144,7 @@ export function generatePackingList(input: PackingInput, tripId: string): NewOf<
     buyLater: false,
     source: 'generated',
   }));
-  return baseReview ? applyHistory(items, baseReview, tripId) : items;
+  return baseReview ? applyHistory(items, baseReview, bag) : items;
 }
 
 /** Same item from several rules → one line with the largest quantity. */
@@ -151,7 +163,7 @@ function merge(lines: Line[]): Line[] {
 function applyHistory(
   items: NewOf<PackingItem>[],
   review: Pick<TripReview, 'forgotten' | 'unused'>,
-  tripId: string,
+  bag: Bag,
 ): NewOf<PackingItem>[] {
   const find = (name: string) => items.find((i) => i.name.toLowerCase() === name.toLowerCase());
   const result = [...items];
@@ -161,7 +173,7 @@ function applyHistory(
     if (existing) existing.source = 'history';
     else
       result.push({
-        tripId,
+        ...bag,
         name,
         category: 'Outros',
         quantity: 1,

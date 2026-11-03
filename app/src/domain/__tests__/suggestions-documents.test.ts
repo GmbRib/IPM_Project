@@ -5,7 +5,7 @@ import { suggestEvents } from '../suggestions';
 
 const trip: Trip = {
   id: 'trip',
-  userId: 'u',
+  createdBy: 'u',
   destination: { name: 'Milão', country: 'Itália', countryCode: 'IT', lat: 45, lon: 9 },
   startDate: '2026-10-20',
   endDate: '2026-10-22',

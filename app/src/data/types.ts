@@ -68,7 +68,8 @@ export type Destination = {
 
 export type Trip = {
   id: ID;
-  userId: ID;
+  /** Who created it. Who runs it now is in TripMember (the organiser can hand it over). */
+  createdBy: ID;
   destination: Destination;
   startDate: ISODate;
   endDate: ISODate;
@@ -89,6 +90,10 @@ export type Category =
 export type PackingItem = {
   id: ID;
   tripId: ID;
+  /** Whose bag this item is in (a user id). */
+  memberId: ID;
+  /** Set when an organiser added it to someone else's bag ("Sugerido por Ana"). */
+  suggestedBy?: ID;
   name: string;
   category: Category;
   quantity: number;
@@ -115,9 +120,36 @@ export type TripEvent = {
 export type TripReview = {
   id: ID;
   tripId: ID;
+  /** Each participant reviews their own bag. */
+  userId: ID;
   forgotten: string[];
   unused: { name: string; qty: number }[];
 };
+
+// Sharing a trip (RBAC). One organiser ("owner"), any number of co-organisers ("admin")
+// and participants ("member"). What each role may do: src/domain/permissions.ts.
+
+export type Role = 'owner' | 'admin' | 'member';
+
+export type TripMember = {
+  id: ID;
+  tripId: ID;
+  userId: ID;
+  role: Role;
+  joinedAt: ISODateTime;
+};
+
+/** Code that lets someone join a trip. */
+export type TripInvite = {
+  id: ID;
+  tripId: ID;
+  code: string;
+  createdBy: ID;
+  expiresAt: ISODateTime;
+};
+
+/** What other participants can see about a user. */
+export type PublicUser = Pick<User, 'id' | 'name' | 'email'>;
 
 /** Fields every "create" call leaves to the repository. */
 export type NewOf<T> = Omit<T, 'id' | 'createdAt'>;

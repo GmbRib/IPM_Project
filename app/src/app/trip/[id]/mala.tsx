@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import {
   ChevronDown,
   ChevronRight,
@@ -8,13 +8,14 @@ import {
   ShoppingCart,
 } from 'lucide-react-native';
 import { useState } from 'react';
-import { Platform, Pressable, View } from 'react-native';
+import { Platform, Pressable, ScrollView, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { ItemRow } from '@/components/packing/ItemRow';
 import { ItemSheet, type ItemDraft } from '@/components/packing/ItemSheet';
 import {
   Banner,
+  Chip,
   EmptyState,
   Fab,
   Header,
@@ -23,20 +24,26 @@ import {
   SegmentedControl,
   Text,
 } from '@/components/ui';
-import { packingProgress } from '@/data/selectors';
+import { packingProgress, roleOf, tripMembers } from '@/data/selectors';
 import type { Category, PackingItem } from '@/data/types';
+import { can, canEditItem, canTogglePacked } from '@/domain/permissions';
 import { rangeLabel } from '@/lib/calendar';
 import { CATEGORIES } from '@/lib/labels';
 import { useData } from '@/stores/data';
+import { useSession } from '@/stores/session';
 import { useUi } from '@/stores/ui';
 import colors from '@/theme/colors';
 
 type Filter = 'all' | 'todo' | 'buy';
 
+/** /trip/[id]/mala: your bag; organisers can open someone else's with ?member=<userId>. */
 export default function MalaScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, member } = useLocalSearchParams<{ id: string; member?: string }>();
   const trip = useData((s) => s.trips.find((t) => t.id === id));
   const allItems = useData((s) => s.packing);
+  const allMembers = useData((s) => s.members);
+  const people = useData((s) => s.people);
+  const userId = useSession((s) => s.user?.id) ?? '';
   const { addPackingItems, updatePackingItem, removePackingItem } = useData();
   const showToast = useUi((s) => s.showToast);
 
@@ -53,14 +60,30 @@ export default function MalaScreen() {
     );
   }
 
-  const items = allItems.filter((i) => i.tripId === trip.id);
-  const progress = packingProgress(allItems, trip.id);
+  const role = roleOf(allMembers, trip.id, userId);
+  const members = tripMembers(allMembers, trip.id);
+  // Whose bag: yours, unless an organiser picked someone else's (and they're still on the trip).
+  const owner =
+    member && can(role, 'bags.viewOthers') && members.some((m) => m.userId === member)
+      ? member
+      : userId;
+  const mine = owner === userId;
+  const nameOf = (uid: string) =>
+    uid === userId ? 'ti' : people.find((p) => p.id === uid)?.name || 'Sem nome';
+  const showBag = (uid: string) => router.setParams({ member: uid === userId ? undefined : uid });
+
+  const items = allItems.filter((i) => i.tripId === trip.id && i.memberId === owner);
+  const progress = packingProgress(allItems, trip.id, owner);
   const toBuy = items.filter((i) => i.buyLater).length;
   const shown = items.filter((i) =>
     filter === 'todo' ? !i.packed : filter === 'buy' ? i.buyLater : true,
   );
 
   function toggle(item: PackingItem) {
+    if (!canTogglePacked(item, userId)) {
+      showToast({ message: `Só ${nameOf(item.memberId)} pode arrumar a sua mala.` });
+      return;
+    }
     if (Platform.OS !== 'web') Haptics.selectionAsync();
     updatePackingItem(item.id, { packed: !item.packed });
   }
@@ -75,15 +98,28 @@ export default function MalaScreen() {
   }
 
   async function save(draft: ItemDraft) {
-    if (sheet.item) await updatePackingItem(sheet.item.id, draft);
-    else await addPackingItems([{ ...draft, tripId: trip!.id, packed: false, source: 'manual' }]);
-    setSheet({ open: false });
+    try {
+      if (sheet.item) await updatePackingItem(sheet.item.id, draft);
+      else {
+        // In someone else's bag this is a suggestion ("Sugerido por …").
+        await addPackingItems([
+          { ...draft, tripId: trip!.id, memberId: owner, packed: false, source: 'manual' },
+        ]);
+      }
+      setSheet({ open: false });
+    } catch {
+      // The store already said what went wrong; the sheet stays open.
+    }
   }
 
   async function remove(item: PackingItem) {
     setSheet({ open: false });
     const { id: _id, ...rest } = item;
-    await removePackingItem(item.id);
+    try {
+      await removePackingItem(item.id);
+    } catch {
+      return;
+    }
     showToast({
       message: `"${item.name}" removido da mala`,
       actionLabel: 'Anular',
@@ -96,9 +132,39 @@ export default function MalaScreen() {
       <Screen scroll>
         <Header
           leading="back"
-          title={`Mala · ${trip.destination.name}`}
-          subtitle={rangeLabel(trip.startDate, trip.endDate)}
+          title={mine ? `Mala · ${trip.destination.name}` : `Mala de ${nameOf(owner)}`}
+          subtitle={`${mine ? '' : `${trip.destination.name} · `}${rangeLabel(trip.startDate, trip.endDate)}`}
         />
+
+        {/* Organisers switch between the bags of everyone on the trip. */}
+        {can(role, 'bags.viewOthers') && members.length > 1 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="-mx-5 mb-4 grow-0"
+            contentContainerClassName="gap-2 px-5"
+          >
+            {members.map((m) => {
+              const p = packingProgress(allItems, trip.id, m.userId);
+              return (
+                <Chip
+                  key={m.id}
+                  label={`${m.userId === userId ? 'A minha' : nameOf(m.userId)} · ${p.packed}/${p.total}`}
+                  selected={m.userId === owner}
+                  onPress={() => showBag(m.userId)}
+                />
+              );
+            })}
+          </ScrollView>
+        )}
+        {!mine && (
+          <View className="mb-4">
+            <Banner
+              tone="info"
+              message={`Só ${nameOf(owner)} arruma esta mala. Podes sugerir itens com o +; ${nameOf(owner)} vê quem os sugeriu.`}
+            />
+          </View>
+        )}
 
         <View className="mb-4 gap-2">
           <Text variant="label" accessibilityLiveRegion="polite">
@@ -106,7 +172,12 @@ export default function MalaScreen() {
           </Text>
           <ProgressBar value={progress.ratio} accessibilityLabel="Progresso da mala" />
           {progress.total > 0 && progress.packed === progress.total && (
-            <Banner tone="success" message="Mala pronta! Boa viagem." />
+            <Banner
+              tone="success"
+              message={
+                mine ? 'Mala pronta! Boa viagem.' : `A mala de ${nameOf(owner)} está pronta.`
+              }
+            />
           )}
         </View>
 
@@ -179,8 +250,14 @@ export default function MalaScreen() {
                       >
                         <ItemRow
                           item={item}
+                          suggestedBy={item.suggestedBy && nameOf(item.suggestedBy)}
+                          canToggle={canTogglePacked(item, userId)}
                           onToggle={() => toggle(item)}
-                          onEdit={() => setSheet({ open: true, item })}
+                          onEdit={
+                            canEditItem(item, userId, role)
+                              ? () => setSheet({ open: true, item })
+                              : undefined
+                          }
                         />
                       </Animated.View>
                     ))}
@@ -190,17 +267,20 @@ export default function MalaScreen() {
         )}
         <View className="h-20" />
       </Screen>
-      <Fab
-        label="Item"
-        accessibilityLabel="Adicionar item"
-        onPress={() => setSheet({ open: true })}
-      />
+      {(mine || can(role, 'bags.suggest')) && (
+        <Fab
+          label={mine ? 'Item' : 'Sugerir'}
+          accessibilityLabel={mine ? 'Adicionar item' : `Sugerir um item a ${nameOf(owner)}`}
+          onPress={() => setSheet({ open: true })}
+        />
+      )}
       <ItemSheet
         open={sheet.open}
         item={sheet.item}
         onClose={() => setSheet({ open: false })}
         onSave={save}
         onDelete={sheet.item ? () => remove(sheet.item!) : undefined}
+        title={!sheet.item && !mine ? `Sugerir a ${nameOf(owner)}` : undefined}
       />
     </View>
   );

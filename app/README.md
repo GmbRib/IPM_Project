@@ -11,12 +11,15 @@ npm install
 npx expo start        # QR code para abrir no Expo Go (telemóvel) · "w" abre no browser
 ```
 
+O `npx expo start` também é o servidor dos dados (ver [Dados, servidor e partilha](#dados-servidor-e-partilha)):
+os telemóveis têm de estar na mesma rede Wi-Fi que o computador (ou usa `npx expo start --tunnel`).
+
 Antes de fazer commit:
 
 ```bash
 npm run typecheck
 npm run lint
-npm test             # testes unitários (motor da mala, sugestões, documentos, calendário)
+npm test             # testes unitários (motor da mala, permissões, servidor, sugestões, calendário)
 ```
 
 ## Onde está o quê
@@ -27,23 +30,66 @@ npm test             # testes unitários (motor da mala, sugestões, documentos,
 | `src/app/dev/kit.tsx` | Catálogo dos componentes base (só em desenvolvimento, via Perfil) |
 | `src/components/ui/` | Componentes base: `Button`, `Card`, `Chip`, `Toggle`, `Stepper`, `ProgressBar`, `SegmentedControl`, `TextField`, `DateField`, `BottomSheet`, `Header`, `Screen`, `EmptyState`, `Text`, `IconButton` |
 | `src/data/types.ts` | Modelo de dados (User, Trip, PackingItem, TripEvent, …) |
-| `src/data/repositories/` | Acesso a dados. `types.ts` = interfaces; `local/` = implementação atual (AsyncStorage/localStorage) |
-| `src/data/seed.ts` | Dados de demonstração (Ana: Milão, Genebra, Sevilha, Londres), com datas relativas a hoje |
+| `src/app/api/` | API routes (correm dentro do `npx expo start`): `rpc+api.ts` (tudo o que a app pede) e `export+api.ts` (CSV) |
+| `src/server/` | O "servidor": `db.ts` (ficheiro JSON), `actions.ts` (cada ação, com as permissões), `seed.ts` (família demo), `schemas.ts` (validação) |
+| `src/data/api.ts` | Cliente do servidor: `rpc()`, token da sessão e cópia offline |
+| `src/data/demo.ts` | Contas de demonstração (uma por papel) |
 | `src/lib/calendar.ts` | Datas do calendário: semanas do mês, barras das viagens, colunas de eventos sobrepostos, etiquetas em PT |
 | `src/components/calendar/` · `events/` | Grelha do mês, faixa da semana, timeline do dia e formulário de eventos |
-| `src/domain/` | Regras do produto, sem UI: gerar a mala (`packing.ts`), sugestões de eventos, avisos de documentos, países |
+| `src/domain/` | Regras do produto, sem UI: gerar a mala (`packing.ts`), quem pode o quê (`permissions.ts`), sugestões de eventos, avisos de documentos, países |
 | `src/services/` | APIs externas: meteorologia e pesquisa de cidades (Open-Meteo, sem chave), com cache e modo offline |
 | `src/data/selectors.ts` | Cálculos reutilizáveis: viagem atual, estado da viagem, progresso da mala, … |
-| `src/stores/` | Estado da app (Zustand): `useSession` (sessão) e `useData` (dados do utilizador) |
+| `src/stores/` | Estado da app (Zustand): `useSession` (sessão) e `useData` (o que o utilizador pode ver, sincronizado com o servidor) |
 | `src/theme/colors.js` | Paleta (cores do logótipo). O `tailwind.config.js` lê daqui: usa `bg-sun`, `text-ember-text`, … |
 | `assets/images/` | Logótipo (fundo transparente) e ícones da app |
 
-## Dados e sessão
+## Dados, servidor e partilha
 
-- **Conta demo:** `ana@packsun.pt` / `ana12345` (em desenvolvimento há um botão "Entrar com a conta demo" no login).
-- **Repor tudo:** Perfil → "Repor dados de demonstração (dev)".
-- **Os ecrãs nunca falam com o armazenamento:** leem de `useData` / `useSession` e chamam as ações destes stores.
-- **Trocar de base de dados:** cria `src/data/repositories/<backend>/` que implemente `Repositories` e muda uma linha em `src/data/repositories/index.ts`.
+Não há base de dados: os dados de todos ficam num ficheiro JSON no computador que corre o
+`npx expo start`, servido pelas API routes do Expo Router (`app.json` → `web.output: "server"`).
+
+- **Onde:** `app/server-data/db.json` (fora do git). Criado com a família demo da primeira vez; apaga-o para recomeçar.
+  Cada pedido lê o ficheiro, trabalha e grava-o de uma vez (um pedido de cada vez).
+- **Como a app lá chega:** `src/data/api.ts` usa o endereço de onde o Expo Go carregou a app
+  (`Constants.expoConfig.hostUri`); na web, o próprio site. `EXPO_PUBLIC_API_URL` muda isto (servidor alojado noutro sítio).
+  Um APK sozinho não tem servidor: precisa dessa variável a apontar para um.
+- **"Sem ligação ao servidor"** num telemóvel: a mensagem mostra o endereço que a app usa. Esse endereço fica
+  fixo quando a app abre; se o computador mudou de IP (outra rede, ou o router deu-lhe outro), abre a app
+  outra vez. Para não depender do IP, abre no Expo Go pelo nome do computador:
+  `exp://<nome>.local:8081`, com o nome de `scutil --get LocalHostName` (ex.: `exp://Rodrigos-MacBook-Pro.local:8081`).
+- **Sincronização:** a cada 5 s e ao voltar à app (`src/hooks/useLiveSync.ts`). O servidor diz se nada mudou
+  (`rev`), por isso é barato. Sem ligação, mostra a última cópia guardada no telemóvel.
+- **Contas demo** (`src/data/demo.ts`; em desenvolvimento há um botão para cada uma no login, e a palavra-passe está nesse ficheiro):
+  `teresa.romao@email.pt` organiza todas as viagens; em Genebra, `rui@email.pt` é co-organizador e
+  `pedro@email.pt` participante (cada um com a sua mala). Código de convite de Genebra: `GENEVA`.
+- **Ver os dados:** `http://localhost:8081/api/export` (só no próprio computador) → uma ligação CSV por tabela,
+  sem palavras-passe nem sessões.
+- **Repor tudo:** Perfil → "Repor dados de demonstração (dev)". Repõe o servidor para todos e termina todas as sessões.
+- **Os ecrãs nunca falam com o servidor:** leem de `useData` / `useSession` e chamam as ações destes stores.
+
+### Papéis numa viagem (RBAC)
+
+Cada viagem tem um organizador (quem a criou, ou a quem ele a passou), co-organizadores e participantes.
+As regras estão num só sítio, `src/domain/permissions.ts`: a app usa-as para mostrar ou esconder botões e
+o servidor (`src/server/actions.ts`) volta a verificá-las em cada pedido.
+
+| | Organizador | Co-organizador | Participante |
+|---|:-:|:-:|:-:|
+| A sua mala | ✓ | ✓ | ✓ |
+| Ver as malas dos outros | ✓ | ✓ | |
+| Sugerir itens às malas dos outros ("Sugerido por …") | ✓ | ✓ | |
+| Editar a viagem, gerir a agenda, aceitar sugestões de eventos | ✓ | ✓ | |
+| Convidar (código de 6 caracteres, válido 7 dias) | ✓ | ✓ | |
+| Mudar papéis, remover pessoas, passar a organização | ✓ | | |
+| Eliminar a viagem (para todos) | ✓ | | |
+| Sair da viagem | | ✓ | ✓ |
+
+- Só o dono de uma mala a arruma; quem sugeriu um item pode corrigi-lo ou apagá-lo.
+- Quem entra com um código recebe uma mala só para si, feita com as suas necessidades.
+- Os documentos são sempre pessoais; o Histórico também (cada um avalia a sua mala).
+
+### Sessão
+
 - **Rotas protegidas** (`src/app/_layout.tsx`): sem sessão → `(auth)`; sessão sem onboarding → `(onboarding)`; senão → `(tabs)`.
 
 ## Formulários
@@ -83,3 +129,5 @@ npm test             # testes unitários (motor da mala, sugestões, documentos,
 - Texto laranja → `text-ember-text` (`ember` só para ícones e formas grandes: o contraste não chega para texto).
 - Botões só com ícone → `IconButton` com `accessibilityLabel`.
 - As classes do NativeWind não chegam às views do Reanimated (`Animated.View`): põe o estilo numa `View` lá dentro.
+- Uma ação nova no servidor: acrescenta-a em `src/server/actions.ts` (com o esquema em `schemas.ts` e a verificação de permissões), um teste em `src/server/__tests__/` e o método no store. O tipo do `rpc()` vem daí automaticamente.
+- Na web, um botão não pode ter outro botão lá dentro (dá erro): um `Card` com `onPress` não leva `Button`s.

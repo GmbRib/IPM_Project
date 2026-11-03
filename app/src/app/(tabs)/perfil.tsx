@@ -14,6 +14,7 @@ import { Pressable, View } from 'react-native';
 
 import { Button, Card, FadeInView, Header, Screen, Text } from '@/components/ui';
 import { documentStatus, pastTrips } from '@/data/selectors';
+import { confirm } from '@/lib/dialogs';
 import { useData } from '@/stores/data';
 import { useSession } from '@/stores/session';
 import colors from '@/theme/colors';
@@ -112,7 +113,17 @@ export default function PerfilScreen() {
             title="Repor dados de demonstração (dev)"
             variant="ghost"
             icon={RotateCcw}
-            onPress={resetDemo}
+            onPress={async () => {
+              const ok = await confirm({
+                title: 'Repor os dados de demonstração?',
+                message:
+                  'Apaga o que foi feito em todos os telemóveis ligados a este servidor e termina as sessões de todos.',
+                confirmLabel: 'Repor',
+                cancelLabel: 'Cancelar',
+                destructive: true,
+              });
+              if (ok) await resetDemo();
+            }}
           />
         </View>
       )}

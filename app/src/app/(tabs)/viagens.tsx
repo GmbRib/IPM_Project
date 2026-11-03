@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, { FadeOut } from 'react-native-reanimated';
 
+import { PeopleCard } from '@/components/trips/People';
 import { TripsSheet } from '@/components/trips/TripsSheet';
 import { WeatherCard } from '@/components/trips/WeatherCard';
 import {
@@ -26,12 +27,13 @@ import {
   Screen,
   Text,
 } from '@/components/ui';
-import { currentTrip, daysUntil, packingProgress, tripStatus } from '@/data/selectors';
+import { currentTrip, daysUntil, packingProgress, roleOf, tripStatus } from '@/data/selectors';
 import { DEFAULT_SETTINGS, type Trip } from '@/data/types';
 import { documentIssues } from '@/domain/documents';
+import { can } from '@/domain/permissions';
 import { useSuggestionActions } from '@/hooks/useSuggestionActions';
 import { dayTitle, rangeLabel } from '@/lib/calendar';
-import { confirm, showActions } from '@/lib/dialogs';
+import { confirm, showActions, type Action } from '@/lib/dialogs';
 import { paxLabel, PURPOSES } from '@/lib/labels';
 import { useData } from '@/stores/data';
 import { useSession } from '@/stores/session';
@@ -40,7 +42,7 @@ import colors from '@/theme/colors';
 
 export default function ViagensScreen() {
   const user = useSession((s) => s.user);
-  const { trips, packing, events, documents, reviews, removeTrip } = useData();
+  const { trips, packing, events, documents, reviews, members, removeTrip, leaveTrip } = useData();
   const selectedId = useUi((s) => s.selectedTripId);
   const selectTrip = useUi((s) => s.selectTrip);
   const showToast = useUi((s) => s.showToast);
@@ -61,6 +63,11 @@ export default function ViagensScreen() {
             actionLabel="Criar viagem"
             onAction={() => router.push('/trip/new')}
           />
+          <Button
+            title="Tenho um código de viagem"
+            variant="ghost"
+            onPress={() => router.push('/trip/join')}
+          />
           {trips.length > 0 && (
             <Button
               title="Ver histórico"
@@ -75,10 +82,16 @@ export default function ViagensScreen() {
 
   const unit = user?.settings?.tempUnit ?? DEFAULT_SETTINGS.tempUnit;
   const status = tripStatus(trip);
-  const progress = packingProgress(packing, trip.id);
+  const role = roleOf(members, trip.id, user?.id);
+  const going = members.filter((m) => m.tripId === trip.id).length;
+  const shared = going > 1;
+  // Everyone who joined counts, even if the organiser said fewer people were going.
+  const pax = paxLabel(Math.max(trip.adults, going), trip.children);
+  const progress = packingProgress(packing, trip.id, user?.id);
   const tripEvents = events.filter((e) => e.tripId === trip.id);
+  // Accepting suggestions is the organisers' call.
   const suggestions = tripEvents
-    .filter((e) => e.status === 'pending')
+    .filter((e) => e.status === 'pending' && can(role, 'events.manage'))
     .sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
   const agenda = tripEvents
     .filter((e) => e.status === 'accepted')
@@ -89,16 +102,53 @@ export default function ViagensScreen() {
   async function deleteTrip(t: Trip) {
     const ok = await confirm({
       title: `Eliminar a viagem a ${t.destination.name}?`,
-      message: 'A mala, os eventos e o histórico desta viagem também são apagados.',
+      message: shared
+        ? 'É eliminada para todos os participantes, com as malas, os eventos e o histórico.'
+        : 'A mala, os eventos e o histórico desta viagem também são apagados.',
       confirmLabel: 'Eliminar',
       cancelLabel: 'Cancelar',
       destructive: true,
     });
     if (!ok) return;
+    try {
+      await removeTrip(t.id);
+    } catch {
+      return;
+    }
     selectTrip(null);
-    await removeTrip(t.id);
     showToast({ message: `Viagem a ${t.destination.name} eliminada` });
   }
+
+  async function leave(t: Trip) {
+    const ok = await confirm({
+      title: `Sair da viagem a ${t.destination.name}?`,
+      message: 'A tua mala desta viagem é apagada. Para voltares precisas de um código novo.',
+      confirmLabel: 'Sair',
+      cancelLabel: 'Ficar',
+      destructive: true,
+    });
+    if (!ok) return;
+    try {
+      await leaveTrip(t.id);
+    } catch {
+      return;
+    }
+    selectTrip(null);
+    showToast({ message: `Saíste da viagem a ${t.destination.name}` });
+  }
+
+  // What the "⋯" menu offers depends on the role (src/domain/permissions.ts).
+  const menu: Action[] = [
+    { label: 'Mudar de viagem', onPress: () => setSheetOpen(true) },
+    {
+      label: can(role, 'trip.invite') ? 'Participantes e convites' : 'Participantes',
+      onPress: () => router.push({ pathname: '/trip/[id]/participantes', params: { id: trip.id } }),
+    },
+    { label: 'Ver histórico', onPress: () => router.push('/historico') },
+    can(role, 'trip.delete')
+      ? { label: 'Eliminar viagem', destructive: true, onPress: () => deleteTrip(trip) }
+      : { label: 'Sair da viagem', destructive: true, onPress: () => leave(trip) },
+  ];
 
   return (
     <Screen edges={['top']} scroll>
@@ -122,27 +172,25 @@ export default function ViagensScreen() {
             icon={Ellipsis}
             variant="glass"
             accessibilityLabel="Mais opções da viagem"
-            onPress={() =>
-              showActions(trip.destination.name, [
-                { label: 'Mudar de viagem', onPress: () => setSheetOpen(true) },
-                { label: 'Ver histórico', onPress: () => router.push('/historico') },
-                { label: 'Eliminar viagem', destructive: true, onPress: () => deleteTrip(trip) },
-              ])
-            }
+            onPress={() => showActions(trip.destination.name, menu)}
           />
           <IconButton
             icon={Plus}
             variant="filled"
-            accessibilityLabel="Nova viagem"
-            onPress={() => router.push('/trip/new')}
+            accessibilityLabel="Nova viagem ou entrar com código"
+            onPress={() =>
+              showActions(undefined, [
+                { label: 'Nova viagem', onPress: () => router.push('/trip/new') },
+                { label: 'Entrar com código', onPress: () => router.push('/trip/join') },
+              ])
+            }
           />
         </View>
       </View>
 
       <View className="mb-5 flex-row flex-wrap items-center gap-2">
         <Text variant="caption">
-          {rangeLabel(trip.startDate, trip.endDate)} · {paxLabel(trip.adults, trip.children)} ·{' '}
-          {PURPOSES[trip.purpose]}
+          {rangeLabel(trip.startDate, trip.endDate)} · {pax} · {PURPOSES[trip.purpose]}
         </Text>
         <Countdown trip={trip} />
       </View>
@@ -178,6 +226,10 @@ export default function ViagensScreen() {
             </Text>
             <ProgressBar value={progress.ratio} />
           </Card>
+        </FadeInView>
+
+        <FadeInView index={3}>
+          <PeopleCard trip={trip} />
         </FadeInView>
 
         {suggestions.length > 0 && (

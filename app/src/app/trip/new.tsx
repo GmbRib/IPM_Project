@@ -44,7 +44,7 @@ export default function NewTripScreen() {
   const user = useSession((s) => s.user);
   const trips = useData((s) => s.trips);
   const reviews = useData((s) => s.reviews);
-  const { addTrip, addPackingItems, addEvents } = useData();
+  const addTrip = useData((s) => s.addTrip);
   const selectTrip = useUi((s) => s.selectTrip);
 
   const base = trips.find((t) => t.id === baseTripId);
@@ -96,8 +96,7 @@ export default function NewTripScreen() {
     setCreating(true);
     setFailed(false);
     try {
-      const trip = await addTrip({
-        userId: user.id,
+      const data = {
         destination: v.destination,
         startDate: format(v.start, 'yyyy-MM-dd'),
         endDate: format(v.end, 'yyyy-MM-dd'),
@@ -106,19 +105,22 @@ export default function NewTripScreen() {
         purpose: v.purpose,
         activities: v.activities,
         basedOnTripId: base?.id,
-      });
-      const forecast = await getTripForecast(trip);
+      };
+      // Bag and suggestions are prepared first and saved with the trip, in one request: a
+      // failure never leaves a half-created trip. The server fills in the trip's id.
+      const forecast = await getTripForecast(data);
       const items = generatePackingList(
         {
-          trip,
+          trip: data,
           conditions: user.conditions,
           forecast: forecast.status === 'ready' ? forecast.days : undefined,
           baseReview: reviews.find((r) => r.tripId === base?.id),
         },
-        trip.id,
+        // The organiser's own bag; the others get theirs when they join.
+        { tripId: '', memberId: user.id },
       );
-      await addPackingItems(items);
-      await addEvents(suggestEvents(trip));
+      const events = suggestEvents({ ...data, id: '', createdBy: user.id });
+      const trip = await addTrip(data, { items, events });
       await tookOff;
       selectTrip(trip.id);
       router.dismissTo('/viagens');

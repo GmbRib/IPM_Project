@@ -7,6 +7,7 @@ import { PlaneScene } from '@/components/animations/PlaneScene';
 import { Button, Chip, EmptyState, Header, Screen, Stepper, TagInput, Text } from '@/components/ui';
 import { rangeLabel } from '@/lib/calendar';
 import { useData } from '@/stores/data';
+import { useSession } from '@/stores/session';
 import { useUi } from '@/stores/ui';
 import { goBack } from '@/lib/navigation';
 
@@ -21,6 +22,7 @@ const COMMONLY_FORGOTTEN = [
 export default function ReviewScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const trip = useData((s) => s.trips.find((t) => t.id === id));
+  const userId = useSession((s) => s.user?.id);
   // Select the stable array and filter here: a selector returning a new array loops forever.
   const packing = useData((s) => s.packing);
   const existing = useData((s) => s.reviews.find((r) => r.tripId === id));
@@ -43,18 +45,24 @@ export default function ReviewScreen() {
     );
   }
 
-  const items = packing.filter((i) => i.tripId === trip.id);
+  // Each person reviews their own bag.
+  const items = packing.filter((i) => i.tripId === trip.id && i.memberId === userId);
   const packed = items.filter((i) => i.packed);
   const notPacked = items.filter((i) => !i.packed).map((i) => i.name);
 
   async function save() {
     setSaving(true);
-    await saveReview({
-      tripId: trip!.id,
-      forgotten,
-      unused: Object.entries(unused).map(([name, qty]) => ({ name, qty })),
-    });
-    setLanded(true);
+    try {
+      await saveReview({
+        tripId: trip!.id,
+        forgotten,
+        unused: Object.entries(unused).map(([name, qty]) => ({ name, qty })),
+      });
+      setLanded(true);
+    } catch {
+      // The store already said what went wrong.
+      setSaving(false);
+    }
   }
 
   // After saving: the plane lands, then back to where the user came from.

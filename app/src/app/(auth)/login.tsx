@@ -5,9 +5,10 @@ import { TextInput, View } from 'react-native';
 
 import { FormPasswordField, FormTextField } from '@/components/form/FormFields';
 import { Banner, Button, Header, Screen, Text } from '@/components/ui';
+import { ApiError } from '@/data/api';
+import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '@/data/demo';
+import { ROLE_LABELS } from '@/domain/permissions';
 import { confirm } from '@/lib/dialogs';
-import { AuthError } from '@/data/repositories';
-import { DEMO_EMAIL, DEMO_PASSWORD } from '@/data/seed';
 import { zodResolver } from '@/lib/zodResolver';
 import { loginSchema, type LoginValues } from '@/lib/validation';
 import { useSession } from '@/stores/session';
@@ -33,7 +34,7 @@ export default function LoginScreen() {
       await login(email, password);
     } catch (err) {
       setServerError(
-        err instanceof AuthError ? err.message : 'Não foi possível entrar. Tenta outra vez.',
+        err instanceof ApiError ? err.message : 'Não foi possível entrar. Tenta outra vez.',
       );
     }
   }
@@ -100,13 +101,22 @@ export default function LoginScreen() {
             onPress={() => router.replace('/register')}
           />
         </View>
+        {/* One account per role on the shared Genebra trip (src/server/seed.ts). */}
         {__DEV__ && (
-          <Button
-            title="Entrar com a conta demo"
-            variant="secondary"
-            size="sm"
-            onPress={() => signIn({ email: DEMO_EMAIL, password: DEMO_PASSWORD })}
-          />
+          <View className="gap-2">
+            <Text variant="caption" className="text-center">
+              Contas de demonstração
+            </Text>
+            {DEMO_ACCOUNTS.map((a) => (
+              <Button
+                key={a.id}
+                title={`${a.name} · ${ROLE_LABELS[a.role]}`}
+                variant="secondary"
+                size="sm"
+                onPress={() => signIn({ email: a.email, password: DEMO_PASSWORD })}
+              />
+            ))}
+          </View>
         )}
       </View>
     </Screen>

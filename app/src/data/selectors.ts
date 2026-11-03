@@ -1,6 +1,6 @@
 import { differenceInCalendarDays, format, parseISO } from 'date-fns';
 
-import type { PackingItem, TravelDocument, Trip, TripStatus } from './types';
+import type { ID, PackingItem, Role, TravelDocument, Trip, TripMember, TripStatus } from './types';
 
 /** Today as 'yyyy-MM-dd', the format trips and events use. */
 export const todayISO = (now = new Date()) => format(now, 'yyyy-MM-dd');
@@ -28,9 +28,9 @@ export function pastTrips(trips: Trip[], today = todayISO()) {
 export const daysUntil = (date: string, today = todayISO()) =>
   differenceInCalendarDays(parseISO(date), parseISO(today));
 
-/** Packing progress of one trip: packed vs total item rows. */
-export function packingProgress(items: PackingItem[], tripId: string) {
-  const mine = items.filter((i) => i.tripId === tripId);
+/** Packing progress of one bag (`memberId`), or of every bag you can see on the trip. */
+export function packingProgress(items: PackingItem[], tripId: ID, memberId?: ID) {
+  const mine = items.filter((i) => i.tripId === tripId && (!memberId || i.memberId === memberId));
   const packed = mine.filter((i) => i.packed).length;
   return { packed, total: mine.length, ratio: mine.length ? packed / mine.length : 0 };
 }
@@ -46,3 +46,17 @@ export function documentStatus(doc: TravelDocument, today = todayISO()): Documen
   if (left <= EXPIRY_WARNING_DAYS) return 'expiring';
   return 'valid';
 }
+
+/** Your role on a trip; null when you're not on it. */
+export const roleOf = (members: TripMember[], tripId: ID, userId: ID | undefined): Role | null =>
+  members.find((m) => m.tripId === tripId && m.userId === userId)?.role ?? null;
+
+const ROLE_ORDER: Record<Role, number> = { owner: 0, admin: 1, member: 2 };
+
+/** Who is on a trip: organiser first, then co-organisers, then by arrival. */
+export const tripMembers = (members: TripMember[], tripId: ID) =>
+  members
+    .filter((m) => m.tripId === tripId)
+    .sort(
+      (a, b) => ROLE_ORDER[a.role] - ROLE_ORDER[b.role] || a.joinedAt.localeCompare(b.joinedAt),
+    );

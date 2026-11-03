@@ -1,4 +1,4 @@
-import { Check, History, Pencil, ShoppingCart } from 'lucide-react-native';
+import { Check, History, Pencil, ShoppingCart, UserRound } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 
@@ -7,18 +7,29 @@ import type { PackingItem } from '@/data/types';
 import { cn } from '@/lib/cn';
 import colors from '@/theme/colors';
 
-type Props = { item: PackingItem; onToggle: () => void; onEdit: () => void };
+type Props = {
+  item: PackingItem;
+  /** Name of who suggested it ("Sugerido por Ana"), when it was someone else. */
+  suggestedBy?: string;
+  /** False in someone else's bag: only its owner packs it. */
+  canToggle?: boolean;
+  onToggle: () => void;
+  /** Leave out when the user can't edit it (no pencil). */
+  onEdit?: () => void;
+};
 
 /** One packing item: tap to mark as packed; pencil to edit. */
-export function ItemRow({ item, onToggle, onEdit }: Props) {
+export function ItemRow({ item, suggestedBy, canToggle = true, onToggle, onEdit }: Props) {
   return (
     <View className="min-h-14 flex-row items-center">
       <Pressable
         onPress={onToggle}
         accessibilityRole="checkbox"
-        accessibilityState={{ checked: item.packed }}
-        accessibilityLabel={`${item.name}${item.quantity > 1 ? `, ${item.quantity} unidades` : ''}${item.buyLater ? ', comprar mais tarde' : ''}`}
-        accessibilityHint={item.packed ? 'Marcar como por arrumar' : 'Marcar como arrumado'}
+        accessibilityState={{ checked: item.packed, disabled: !canToggle }}
+        accessibilityLabel={`${item.name}${item.quantity > 1 ? `, ${item.quantity} unidades` : ''}${item.buyLater ? ', comprar mais tarde' : ''}${suggestedBy ? `, sugerido por ${suggestedBy}` : ''}`}
+        accessibilityHint={
+          !canToggle ? undefined : item.packed ? 'Marcar como por arrumar' : 'Marcar como arrumado'
+        }
         className="min-h-14 flex-1 flex-row items-center gap-3 py-2 active:opacity-70"
       >
         <View
@@ -40,8 +51,9 @@ export function ItemRow({ item, onToggle, onEdit }: Props) {
               <Text className="font-body-bold text-muted"> ×{item.quantity}</Text>
             )}
           </Text>
-          {(item.buyLater || item.source === 'history') && (
+          {(item.buyLater || item.source === 'history' || !!suggestedBy) && (
             <View className="flex-row flex-wrap gap-1.5">
+              {!!suggestedBy && <Badge icon="suggested" label={`Sugerido por ${suggestedBy}`} />}
               {item.buyLater && <Badge icon="buy" label="Comprar" />}
               {item.source === 'history' && (
                 <Badge icon="history" label="Esqueceste da última vez" />
@@ -50,18 +62,22 @@ export function ItemRow({ item, onToggle, onEdit }: Props) {
           )}
         </View>
       </Pressable>
-      <IconButton
-        icon={Pencil}
-        accessibilityLabel={`Editar ${item.name}`}
-        color={colors.muted}
-        onPress={onEdit}
-      />
+      {onEdit && (
+        <IconButton
+          icon={Pencil}
+          accessibilityLabel={`Editar ${item.name}`}
+          color={colors.muted}
+          onPress={onEdit}
+        />
+      )}
     </View>
   );
 }
 
-function Badge({ icon, label }: { icon: 'buy' | 'history'; label: string }) {
-  const Icon = icon === 'buy' ? ShoppingCart : History;
+const BADGE_ICONS = { buy: ShoppingCart, history: History, suggested: UserRound };
+
+function Badge({ icon, label }: { icon: keyof typeof BADGE_ICONS; label: string }) {
+  const Icon = BADGE_ICONS[icon];
   return (
     <View className="flex-row items-center gap-1 rounded-full bg-sun-soft px-2 py-0.5">
       <Icon size={12} color={colors['ember-text']} />

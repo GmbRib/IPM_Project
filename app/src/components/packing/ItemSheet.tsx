@@ -15,14 +15,20 @@ type Props = {
   onClose: () => void;
   onSave: (draft: ItemDraft) => void;
   onDelete?: () => void;
+  /** Overrides "Adicionar item" (e.g. "Sugerir a Pedro"). */
+  title?: string;
 };
 
 const EMPTY: ItemDraft = { name: '', category: 'Roupa', quantity: 1, buyLater: false };
 
 /** Add / edit a packing item (fluxo 2: "Adicionar" and "Editar"). */
-export function ItemSheet({ open, item, onClose, onSave, onDelete }: Props) {
+export function ItemSheet({ open, item, onClose, onSave, onDelete, title }: Props) {
   return (
-    <BottomSheet open={open} onClose={onClose} title={item ? 'Editar item' : 'Adicionar item'}>
+    <BottomSheet
+      open={open}
+      onClose={onClose}
+      title={title ?? (item ? 'Editar item' : 'Adicionar item')}
+    >
       {/* The sheet unmounts its content when closed, so each opening starts fresh. */}
       <ItemForm item={item} onSave={onSave} onDelete={onDelete} />
     </BottomSheet>

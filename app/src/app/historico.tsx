@@ -18,6 +18,7 @@ import type { Trip, TripReview } from '@/data/types';
 import { rangeLabel } from '@/lib/calendar';
 import { paxLabel, PURPOSES } from '@/lib/labels';
 import { useData } from '@/stores/data';
+import { useSession } from '@/stores/session';
 import colors from '@/theme/colors';
 
 /** Lessons from past trips, and the trips themselves. */
@@ -25,6 +26,7 @@ export default function HistoricoScreen() {
   const trips = useData((s) => s.trips);
   const reviews = useData((s) => s.reviews);
   const packing = useData((s) => s.packing);
+  const userId = useSession((s) => s.user?.id);
   // Kept while the sheet fades out, so its content doesn't vanish mid-animation.
   const [selected, setSelected] = useState<Trip | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -67,7 +69,7 @@ export default function HistoricoScreen() {
           <Text variant="heading">Viagens anteriores</Text>
           {past.map((t, i) => {
             const r = reviewOf(t);
-            const count = packing.filter((i) => i.tripId === t.id).length;
+            const count = packing.filter((i) => i.tripId === t.id && i.memberId === userId).length;
             const summary = r
               ? `${count} itens · ${r.forgotten.length} ${r.forgotten.length === 1 ? 'esquecido' : 'esquecidos'}`
               : `${count} itens · por rever`;

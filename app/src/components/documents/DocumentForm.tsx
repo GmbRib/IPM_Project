@@ -54,7 +54,7 @@ export function DocumentForm({ doc, type = 'cc' }: Props) {
       photoUri: v.photoUri,
     };
     if (doc) await updateDocument(doc.id, data);
-    else await addDocument({ ...data, userId });
+    else await addDocument(data);
     if (originalPhoto && originalPhoto !== v.photoUri) deletePhoto(originalPhoto);
     goBack();
   }

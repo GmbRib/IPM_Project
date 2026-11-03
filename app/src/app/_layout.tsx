@@ -18,6 +18,7 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { DialogHost, ToastHost } from '@/components/ui';
+import { useLiveSync } from '@/hooks/useLiveSync';
 import { useSession } from '@/stores/session';
 import colors from '@/theme/colors';
 
@@ -29,6 +30,8 @@ export default function RootLayout() {
   const status = useSession((s) => s.status);
   const onboarded = useSession((s) => s.user?.onboarded ?? false);
   const ready = balooLoaded && nunitoLoaded && status !== 'loading';
+  // Shared trips: pick up what the others change while the app is open.
+  useLiveSync(status === 'signedIn');
 
   useEffect(() => {
     useSession.getState().bootstrap();
@@ -64,6 +67,8 @@ export default function RootLayout() {
           <Stack.Screen name="trip/new" options={{ animation: 'slide_from_bottom' }} />
           <Stack.Screen name="trip/[id]/mala" />
           <Stack.Screen name="trip/[id]/review" />
+          <Stack.Screen name="trip/[id]/participantes" />
+          <Stack.Screen name="trip/join" options={{ animation: 'slide_from_bottom' }} />
           <Stack.Screen name="historico" />
           <Stack.Screen name="perfil/documentos" />
           <Stack.Screen name="perfil/preferencias" />
