@@ -18,6 +18,7 @@ As 8 fases estão implementadas em `app/`. Tudo foi testado no browser (web); fa
 | 5 Mala | ✅ | Categorias, filtros, lista de compras, adicionar/editar/eliminar |
 | 6 Histórico + Perfil | ✅ | "Como correu?", insights, "Usar como base", documentos, preferências, definições |
 | 7 Polimento | ✅ parcial | Testes unitários (Jest, 20), estados vazios/erro/offline, revisão de acessibilidade de base. Por fazer: testes com utilizadores, VoiceOver/TalkBack em dispositivo, build de demonstração |
+| 8 Partilha (RBAC) | ✅ (2 nov) | Viagens partilhadas com papéis, servidor JSON nas API routes do Expo, convites por código, malas por pessoa e sugestões. 76 testes. Testado no simulador do iPhone com três contas |
 
 **Desvios ao plano:** folha inferior própria em vez de `@gorhom/bottom-sheet` (não abria no SDK 58); resolver zod próprio em vez de `@hookform/resolvers` (dependências em conflito); a validade do passaporte só conta para países fora de Schengen; o lembrete de mala é só guardado (sem notificações no protótipo).
 
@@ -98,26 +99,27 @@ Cores extraídas do logótipo Pack&Sun, com contraste verificado (WCAG AA ≥ 4.
 ```ts
 User          { id, email, name, conditions: { wheelchair: boolean; allergies: string[]; medication: string[] }, createdAt }
 Document      { id, userId, type: 'cc'|'passport'|'driving'|'other', name, number, expiresAt, photoUri? }
-Trip          { id, userId, destination: { name, country, lat, lon }, startDate, endDate,
+Trip          { id, createdBy, destination: { name, country, lat, lon }, startDate, endDate,
                 adults, children, purpose: 'leisure'|'work', activities: Activity[],
                 basedOnTripId?, status: 'upcoming'|'ongoing'|'past' (derivado das datas) }
-PackingItem   { id, tripId, name, category: Category, quantity, packed: boolean,
-                buyLater: boolean, source: 'generated'|'manual'|'history' }
+TripMember    { id, tripId, userId, role: 'owner'|'admin'|'member', joinedAt }   // Fase 8
+TripInvite    { id, tripId, code, createdBy, expiresAt }                          // Fase 8
+PackingItem   { id, tripId, memberId (de quem é a mala), suggestedBy?, name, category: Category,
+                quantity, packed: boolean, buyLater: boolean, source: 'generated'|'manual'|'history' }
 Event         { id, tripId?, date, startTime, endTime?, title, location?, notes?,
                 kind: 'user'|'suggested', status: 'accepted'|'pending'|'dismissed' }
-TripReview    { tripId, forgotten: string[], unused: { name, qty }[] }   // alimenta o Histórico
+TripReview    { tripId, userId, forgotten: string[], unused: { name, qty }[] }   // alimenta o Histórico (um por pessoa)
 ```
 
 - `Activity`: `hiking | beach | dinner_out | meeting | museums_formal | sport | theme_park | nightlife`
 - `Category`: `Roupa | Higiene | Saúde | Eletrónica | Documentos | Acessórios | Criança | Outros`
 
-### Interface de repositório (BD em aberto)
-```ts
-interface TripRepository { list(): Promise<Trip[]>; get(id); create(t); update(id, patch); remove(id); }
-// idem para Documents, PackingItems, Events, Reviews, Auth
-```
-1.ª implementação: `local/` (Zustand + AsyncStorage) com **dados semente**: a Ana, Milão 20–22 Out (Trabalho), Genebra 27 Out–2 Nov (Lazer), e Sevilha e Londres no histórico.
-Para trocar de BD, cria-se `supabase/` ou `firebase/` com a mesma interface e muda-se uma linha em `repositories/index.ts`.
+### Onde ficam os dados
+Até à Fase 7: repositórios locais (AsyncStorage), um telemóvel de cada vez.
+Desde a Fase 8: **sem base de dados**, um ficheiro JSON (`app/server-data/db.json`) no computador que corre o
+`npx expo start`, servido pelas API routes do Expo Router (`POST /api/rpc`). Cada ação verifica a sessão e o papel
+na viagem; a app recebe só o que pode ver. Dados semente: a família da Professora Teresa (Milão, Genebra partilhada
+com o Rui e o Pedro, e Sevilha e Londres no histórico). Detalhes em `app/README.md` → "Dados, servidor e partilha".
 
 ---
 
@@ -290,6 +292,19 @@ Cada fase acaba com a app a correr e um critério de "feito".
 - Microanimações (marcar item, progresso), haptics.
 - Preparar os **cenários de teste com utilizadores** com o seed (tarefas: criar viagem, arrumar mala, ver tempo, adicionar documento, usar o histórico).
 - Build de demonstração (Expo Go por QR ou `eas build` para um APK).
+
+### Fase 8: Partilha da viagem com papéis (RBAC) (feita a 2 nov)
+A viagem passa a ser uma entidade partilhada: cada pessoa tem a sua mala e um papel.
+- **Papéis:** organizador (cria a viagem; muda papéis, remove pessoas, passa a organização, elimina),
+  co-organizador (vê e sugere itens nas malas de todos, gere a agenda, convida) e participante (a sua mala e a agenda).
+  Matriz única em `src/domain/permissions.ts`, usada pela app e verificada outra vez no servidor.
+- **Servidor sem BD:** ficheiro JSON servido pelas API routes do Expo; sessões por token; sincronização a cada 5 s.
+- **Convites:** código de 6 caracteres válido 7 dias, partilhado com a folha de partilha do sistema; ecrã
+  "Entrar com código" com pré-visualização e aviso de privacidade (o que os organizadores passam a ver).
+- **Ecrãs:** cartão "Quem vai" no painel, ecrã de participantes, mala com seletor de pessoa (organizadores),
+  "Sugerido por …" nos itens, agenda só de leitura para participantes, papel no seletor de viagens.
+- **Fora desta fase:** mala partilhada da família, dependentes sem conta (crianças), notificações push.
+- **Limite do protótipo:** só funciona com o `npx expo start` ligado e os telemóveis na mesma rede (ou `--tunnel`).
 
 **Total estimado:** ~4 semanas a 4 pessoas, ou menos se as fases 3, 4/5 e 6 andarem em paralelo depois da Fase 1.
 

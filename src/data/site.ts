@@ -94,7 +94,7 @@ export type Assignment = {
 };
 
 /** Individual assignments. Add a student number to `submitted` once their PDF is in public/reports/. */
-export const assignments: Assignment[] = [{ number: 1, title: "Assignment 1", submitted: ["75539","75205", "73984"] }];
+export const assignments: Assignment[] = [{ number: 1, title: "Assignment 1", submitted: ["75539","75205", "73984", "72815"] }];
 
 /** File naming convention: public/reports/assignment<N>-<student number>.pdf */
 export const assignmentFile = (assignment: number, studentNumber: string) => ({
