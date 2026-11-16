@@ -132,4 +132,34 @@ describe('generatePackingList', () => {
     });
     expect(items.find((i) => i.name === 'T-shirt')?.quantity).toBe(4);
   });
+
+  it('adds the user preset on top of the suggestions', () => {
+    const items = generatePackingList(
+      {
+        ...base,
+        preset: [
+          { name: 'Auriculares', category: 'Eletrónica', quantity: 1 },
+          // Already suggested (8 for a week): the larger quantity wins, one line only.
+          { name: 'roupa interior', category: 'Roupa', quantity: 10 },
+          // Smaller than the suggestion (7): the suggestion's quantity stays.
+          { name: 'Meias', category: 'Roupa', quantity: 2 },
+        ],
+      },
+      BAG,
+    );
+    expect(items.find((i) => i.name === 'Auriculares')).toMatchObject({
+      category: 'Eletrónica',
+      quantity: 1,
+      tripId: 't1',
+      memberId: 'u1',
+      packed: false,
+    });
+    expect(items.filter((i) => i.name.toLowerCase() === 'roupa interior')).toHaveLength(1);
+    expect(items.find((i) => i.name.toLowerCase() === 'roupa interior')?.quantity).toBe(10);
+    expect(
+      qty({ ...base, preset: [{ name: 'Meias', category: 'Roupa', quantity: 2 }] }, 'Meias'),
+    ).toBe(7);
+    // Everything else is still suggested.
+    expect(names({ ...base, preset: [] })).toEqual(names(base));
+  });
 });

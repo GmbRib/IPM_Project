@@ -17,7 +17,7 @@ type SessionState = {
   login(email: string, password: string): Promise<void>;
   logout(): Promise<void>;
   updateUser(
-    patch: Partial<Pick<User, 'name' | 'conditions' | 'onboarded' | 'settings'>>,
+    patch: Partial<Pick<User, 'name' | 'conditions' | 'onboarded' | 'settings' | 'presetItems'>>,
   ): Promise<void>;
   /** Pulls what changed on other phones (called by useLiveSync). */
   refresh(): Promise<void>;

@@ -11,18 +11,28 @@ export type ItemDraft = Pick<PackingItem, 'name' | 'category' | 'quantity' | 'bu
 type Props = {
   open: boolean;
   /** Editing this item; leave out to add a new one. */
-  item?: PackingItem;
+  item?: Pick<PackingItem, 'name' | 'category' | 'quantity'> & { buyLater?: boolean };
   onClose: () => void;
   onSave: (draft: ItemDraft) => void;
   onDelete?: () => void;
   /** Overrides "Adicionar item" (e.g. "Sugerir a Pedro"). */
   title?: string;
+  /** Off for items that aren't in a bag yet ("Os meus itens"). */
+  showBuyLater?: boolean;
 };
 
 const EMPTY: ItemDraft = { name: '', category: 'Roupa', quantity: 1, buyLater: false };
 
 /** Add / edit a packing item (fluxo 2: "Adicionar" and "Editar"). */
-export function ItemSheet({ open, item, onClose, onSave, onDelete, title }: Props) {
+export function ItemSheet({
+  open,
+  item,
+  onClose,
+  onSave,
+  onDelete,
+  title,
+  showBuyLater = true,
+}: Props) {
   return (
     <BottomSheet
       open={open}
@@ -30,19 +40,24 @@ export function ItemSheet({ open, item, onClose, onSave, onDelete, title }: Prop
       title={title ?? (item ? 'Editar item' : 'Adicionar item')}
     >
       {/* The sheet unmounts its content when closed, so each opening starts fresh. */}
-      <ItemForm item={item} onSave={onSave} onDelete={onDelete} />
+      <ItemForm item={item} onSave={onSave} onDelete={onDelete} showBuyLater={showBuyLater} />
     </BottomSheet>
   );
 }
 
-function ItemForm({ item, onSave, onDelete }: Pick<Props, 'item' | 'onSave' | 'onDelete'>) {
+function ItemForm({
+  item,
+  onSave,
+  onDelete,
+  showBuyLater,
+}: Pick<Props, 'item' | 'onSave' | 'onDelete' | 'showBuyLater'>) {
   const [draft, setDraft] = useState<ItemDraft>(() =>
     item
       ? {
           name: item.name,
           category: item.category,
           quantity: item.quantity,
-          buyLater: item.buyLater,
+          buyLater: item.buyLater ?? false,
         }
       : EMPTY,
   );
@@ -93,12 +108,14 @@ function ItemForm({ item, onSave, onDelete }: Pick<Props, 'item' | 'onSave' | 'o
         min={1}
         max={50}
       />
-      <Toggle
-        label="Comprar mais tarde"
-        description="Aparece na lista de compras."
-        value={draft.buyLater}
-        onValueChange={(v) => set('buyLater', v)}
-      />
+      {showBuyLater && (
+        <Toggle
+          label="Comprar mais tarde"
+          description="Aparece na lista de compras."
+          value={draft.buyLater}
+          onValueChange={(v) => set('buyLater', v)}
+        />
+      )}
       <Button title="Guardar" fullWidth onPress={save} />
       {item && onDelete && (
         <Button title="Eliminar item" variant="ghost" icon={Trash2} onPress={onDelete} />

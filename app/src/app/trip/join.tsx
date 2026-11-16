@@ -62,6 +62,7 @@ export default function JoinTripScreen() {
           trip,
           conditions: user.conditions,
           forecast: forecast.status === 'ready' ? forecast.days : undefined,
+          preset: user.presetItems,
         },
         // The server puts the items in the right trip and bag.
         { tripId: preview.tripId, memberId: user.id },

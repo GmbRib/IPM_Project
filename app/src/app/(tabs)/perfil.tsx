@@ -3,6 +3,7 @@ import {
   ChevronRight,
   FileText,
   History,
+  ListChecks,
   LogOut,
   RotateCcw,
   Settings,
@@ -25,6 +26,7 @@ export default function PerfilScreen() {
   const resetDemo = useSession((s) => s.resetDemo);
   const trips = useData((s) => s.trips);
   const documents = useData((s) => s.documents);
+  const preset = user?.presetItems ?? [];
 
   const done = pastTrips(trips).length;
   const attention = documents.filter((d) => documentStatus(d) !== 'valid').length;
@@ -73,6 +75,16 @@ export default function PerfilScreen() {
             title="Preferências de viagem"
             subtitle={needs.length ? `Nome, ${needs.join(', ')}` : 'Nome e necessidades especiais'}
             href="/perfil/preferencias"
+          />
+          <Row
+            icon={ListChecks}
+            title="Os meus itens"
+            subtitle={
+              preset.length === 0
+                ? 'O que levas sempre, em todas as malas'
+                : `${preset.length} ${preset.length === 1 ? 'item' : 'itens'} em todas as malas novas`
+            }
+            href="/perfil/itens"
           />
           <Row
             icon={History}

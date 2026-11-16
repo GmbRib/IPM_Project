@@ -115,6 +115,7 @@ export default function NewTripScreen() {
           conditions: user.conditions,
           forecast: forecast.status === 'ready' ? forecast.days : undefined,
           baseReview: reviews.find((r) => r.tripId === base?.id),
+          preset: user.presetItems,
         },
         // The organiser's own bag; the others get theirs when they join.
         { tripId: '', memberId: user.id },

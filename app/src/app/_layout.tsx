@@ -72,6 +72,7 @@ export default function RootLayout() {
           <Stack.Screen name="historico" />
           <Stack.Screen name="perfil/documentos" />
           <Stack.Screen name="perfil/preferencias" />
+          <Stack.Screen name="perfil/itens" />
           <Stack.Screen name="perfil/definicoes" />
         </Stack.Protected>
         {/* Used both during onboarding and from Perfil. */}

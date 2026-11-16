@@ -6,6 +6,7 @@ import type {
   ID,
   NewOf,
   PackingItem,
+  PresetItem,
   Trip,
   TripReview,
   User,
@@ -28,6 +29,8 @@ export type PackingInput = {
   forecast?: DayForecast[];
   /** Review of the trip this one is based on ("Usar como base"). */
   baseReview?: Pick<TripReview, 'forgotten' | 'unused'>;
+  /** "Os meus itens" (Perfil): always in the bag, on top of the suggestions. */
+  preset?: PresetItem[];
 };
 
 /** Packing for many days doesn't scale forever: people do laundry. */
@@ -49,7 +52,7 @@ export function tripDays(trip: Pick<Trip, 'startDate' | 'endDate'>) {
 }
 
 export function generatePackingList(input: PackingInput, bag: Bag): NewOf<PackingItem>[] {
-  const { trip, conditions, forecast, baseReview } = input;
+  const { trip, conditions, forecast, baseReview, preset } = input;
   const days = Math.min(tripDays(trip), MAX_DAYS);
   const people = trip.adults + trip.children;
   const lines: Line[] = [];
@@ -135,6 +138,10 @@ export function generatePackingList(input: PackingInput, bag: Bag): NewOf<Packin
   for (const med of conditions.medication) add([`Medicação: ${med}`, 'Saúde', 1]);
   if (conditions.medication.length) add(['Receitas médicas', 'Documentos', 1]);
 
+  // The user's preset is added to the suggestions. Same name as a suggestion → one line with
+  // the larger quantity, in the user's category (they chose it on purpose).
+  for (const p of preset ?? []) add([p.name.trim(), p.category, p.quantity]);
+
   const items = merge(lines).map(([name, category, quantity]): NewOf<PackingItem> => ({
     ...bag,
     name,
@@ -147,14 +154,17 @@ export function generatePackingList(input: PackingInput, bag: Bag): NewOf<Packin
   return baseReview ? applyHistory(items, baseReview, bag) : items;
 }
 
-/** Same item from several rules → one line with the largest quantity. */
+/**
+ * Same item from several rules → one line with the largest quantity. Later lines win on
+ * category and spelling (the preset comes last, so the user's choice is kept).
+ */
 function merge(lines: Line[]): Line[] {
   const byName = new Map<string, Line>();
   for (const line of lines) {
-    if (line[2] <= 0) continue;
+    if (!line[0] || line[2] <= 0) continue;
     const key = line[0].toLowerCase();
     const prev = byName.get(key);
-    if (!prev || line[2] > prev[2]) byName.set(key, line);
+    byName.set(key, prev ? [line[0], line[1], Math.max(prev[2], line[2])] : line);
   }
   return [...byName.values()];
 }

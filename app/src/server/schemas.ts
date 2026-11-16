@@ -21,12 +21,25 @@ const conditions = z.object({
   medication: z.array(name(80)).max(30),
 });
 
+const category = z.enum([
+  'Roupa',
+  'Higiene',
+  'Saúde',
+  'Eletrónica',
+  'Documentos',
+  'Acessórios',
+  'Criança',
+  'Outros',
+]);
+const quantity = z.number().int().min(1).max(99);
+
 export const userPatch = z
   .object({
     name: text(80),
     conditions,
     onboarded: z.boolean(),
     settings: z.object({ tempUnit: z.enum(['C', 'F']), packingReminder: z.boolean() }),
+    presetItems: z.array(z.object({ name: name(100), category, quantity })).max(100),
   })
   .partial();
 
@@ -75,17 +88,8 @@ export const tripPatch = z.object(tripFields).partial();
 
 const itemFields = {
   name: name(100),
-  category: z.enum([
-    'Roupa',
-    'Higiene',
-    'Saúde',
-    'Eletrónica',
-    'Documentos',
-    'Acessórios',
-    'Criança',
-    'Outros',
-  ]),
-  quantity: z.number().int().min(1).max(99),
+  category,
+  quantity,
   packed: z.boolean(),
   buyLater: z.boolean(),
 };

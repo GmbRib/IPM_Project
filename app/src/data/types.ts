@@ -21,7 +21,16 @@ export type User = {
   /** False until the user finishes (or skips) onboarding. */
   onboarded: boolean;
   settings?: UserSettings;
+  /** "Os meus itens": added to every new bag on top of the suggestions (Perfil). */
+  presetItems?: PresetItem[];
   createdAt: ISODateTime;
+};
+
+/** An item the user always packs. No trip or bag: it's copied into each new one. */
+export type PresetItem = {
+  name: string;
+  category: Category;
+  quantity: number;
 };
 
 export type UserSettings = {
