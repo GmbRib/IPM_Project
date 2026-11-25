@@ -5,16 +5,19 @@ import type { Db } from '../db';
 import { dispatch } from '../rpc';
 import { buildSeed } from '../seed';
 
-// The server's rules, run on the demo data in memory (no file involved).
-// Genebra: Teresa organises, Rui co-organises, Pedro participates. Milão: only Teresa.
+import { addSharedTrip, GENEBRA } from './sharedTrip';
 
-const GENEBRA = 'demo-trip-genebra';
-const MILAO = 'demo-trip-milao';
+// The server's rules, run on the demo data in memory (no file involved), plus a shared trip.
+// Genebra: Teresa organises, Rui co-organises, Pedro participates. Oslo: only Teresa.
+
+const OSLO = 'demo-trip-oslo';
 const [TERESA, RUI, PEDRO] = DEMO_ACCOUNTS.map((a) => a.id);
 
 let db: Db;
 beforeEach(() => {
-  db = buildSeed(new Date());
+  const today = new Date();
+  db = buildSeed(today);
+  addSharedTrip(db, today);
 });
 
 function call<A extends ActionName>(token: string | null, name: A, input: ActionInput<A>) {
@@ -301,7 +304,7 @@ describe('invites', () => {
     expect(errorOf(() => call(login(PEDRO), 'invites.create', { tripId: GENEBRA }))).toBe(
       'forbidden',
     );
-    expect(errorOf(() => call(login(RUI), 'invites.create', { tripId: MILAO }))).toBe('not_found');
+    expect(errorOf(() => call(login(RUI), 'invites.create', { tripId: OSLO }))).toBe('not_found');
   });
 });
 
@@ -364,9 +367,9 @@ describe('deleting a trip', () => {
 describe('patches', () => {
   it('null clears an optional field; a missing key keeps it', () => {
     const teresa = login(TERESA);
-    const id = 'demo-event-reuniao';
-    call(teresa, 'events.update', { id, patch: { title: 'Reunião' } });
-    expect(db.events.find((e) => e.id === id)?.endTime).toBe('12:00');
+    const id = 'demo-event-aula';
+    call(teresa, 'events.update', { id, patch: { title: 'Aula' } });
+    expect(db.events.find((e) => e.id === id)?.endTime).toBe('16:00');
     call(teresa, 'events.update', { id, patch: { endTime: null } });
     expect(db.events.find((e) => e.id === id)).not.toHaveProperty('endTime');
   });

@@ -60,8 +60,9 @@ Não há base de dados: os dados de todos ficam num ficheiro JSON no computador 
 - **Sincronização:** a cada 5 s e ao voltar à app (`src/hooks/useLiveSync.ts`). O servidor diz se nada mudou
   (`rev`), por isso é barato. Sem ligação, mostra a última cópia guardada no telemóvel.
 - **Contas demo** (`src/data/demo.ts`; em desenvolvimento há um botão para cada uma no login, e a palavra-passe está nesse ficheiro):
-  `teresa.romao@email.pt` organiza todas as viagens; em Genebra, `rui@email.pt` é co-organizador e
-  `pedro@email.pt` participante (cada um com a sua mala). Código de convite de Genebra: `GENEVA`.
+  `teresa.romao@email.pt` organiza as viagens dos cenários de teste (Oslo, Madrid e Paris, relatório da etapa 4).
+  `rui@email.pt` e `pedro@email.pt` começam sem viagens: para mostrar a partilha, a Teresa convida-os
+  (Convidar → código) e eles entram com "Entrar com código".
 - **Ver os dados:** `http://localhost:8081/api/export` (só no próprio computador) → uma ligação CSV por tabela,
   sem palavras-passe nem sessões.
 - **Repor tudo:** Perfil → "Repor dados de demonstração (dev)". Repõe o servidor para todos e termina todas as sessões.

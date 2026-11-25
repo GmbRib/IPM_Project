@@ -101,7 +101,7 @@ export default function LoginScreen() {
             onPress={() => router.replace('/register')}
           />
         </View>
-        {/* One account per role on the shared Genebra trip (src/server/seed.ts). */}
+        {/* One account per role (src/data/demo.ts); the trips are in src/server/seed.ts. */}
         {__DEV__ && (
           <View className="gap-2">
             <Text variant="caption" className="text-center">

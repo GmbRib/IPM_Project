@@ -25,8 +25,18 @@ const PLACES: Record<string, Partial<Record<Activity, Idea>>> = {
     dinner_out: { title: 'Jantar', location: 'Dishoom Covent Garden', time: '20:00' },
   },
   paris: {
+    theme_park: { title: 'Disneyland Paris', location: 'Disneyland Paris', time: '09:30' },
     museums_formal: { title: 'Museu', location: "Musée d'Orsay", time: '10:00' },
     dinner_out: { title: 'Jantar', location: 'Le Bouillon Chartier', time: '20:00' },
+  },
+  oslo: {
+    dinner_out: { title: 'Jantar', location: 'Engebret Café', time: '20:00' },
+    nightlife: { title: 'Sair', location: 'Grünerløkka', time: '22:00' },
+    museums_formal: { title: 'Visita', location: 'Ópera de Oslo e Museu Munch', time: '10:00' },
+  },
+  madrid: {
+    dinner_out: { title: 'Jantar', location: 'Sobrino de Botín', time: '21:30' },
+    museums_formal: { title: 'Museu', location: 'Museo del Prado', time: '10:00' },
   },
   sevilha: {
     dinner_out: { title: 'Tapas', location: 'El Rinconcillo', time: '21:00' },

@@ -1,8 +1,8 @@
 import type { Role } from './types';
 
 // Demo accounts (plan §8, Fase 7): created by the server's seed (src/server/seed.ts) and
-// offered on the login screen in development. One family sharing the Genebra trip, one
-// account per role, so the permissions can be shown side by side on two phones.
+// offered on the login screen in development. Teresa organises the test-scenario trips; Rui
+// and Pedro start with none, ready to be invited (the role is the one they're meant to get).
 export const DEMO_PASSWORD = 'ana12345';
 
 export const DEMO_ACCOUNTS: { id: string; email: string; name: string; role: Role }[] = [
