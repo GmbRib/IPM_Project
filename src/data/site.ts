@@ -1,4 +1,5 @@
-const base = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
+const base = (path: string) =>
+  `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 
 export type Member = {
   name: string;
@@ -41,28 +42,28 @@ export const members: Member[] = [
     name: "Dinis Santos",
     number: "72815",
     photo: base("/members/Dinis.jpeg"),
-    url: "https://www.linkedin.com/in/dinis-santos-380006257/"
+    url: "https://www.linkedin.com/in/dinis-santos-380006257/",
   },
   {
     name: "Guilherme Ribeiro",
     number: "75539",
     photo: base("/members/Gui.jpeg"),
     photoPosition: "50% 20%",
-    url: "https://github.com/GmbRib"
+    url: "https://github.com/GmbRib",
   },
   {
     name: "Joana Neves",
     number: "75205",
     photo: base("/members/Joana.jpeg"),
     photoPosition: "50% 25%",
-    url: "https://www.linkedin.com/in/joana-neves-a25903260/"
+    url: "https://www.linkedin.com/in/joana-neves-a25903260/",
   },
   {
     name: "Rodrigo Loução",
     number: "73984",
     photo: base("/members/Loucao.jpeg"),
     photoPosition: "45% 15%",
-    url: "https://rloucao.dev/"
+    url: "https://rloucao.dev/",
   },
 ];
 
@@ -82,7 +83,10 @@ export const stages: Stage[] = [1, 2, 3, 4, 5, 6].map((n) => {
     available: Boolean(info),
     ...(info && {
       ...info,
-      previews: [base(`/reports/previews/G_03_stage${n}-1.jpg`), base(`/reports/previews/G_03_stage${n}-2.jpg`)],
+      previews: [
+        base(`/reports/previews/G_03_stage${n}-1.jpg`),
+        base(`/reports/previews/G_03_stage${n}-2.jpg`),
+      ],
     }),
   };
 });
@@ -95,12 +99,20 @@ export type Assignment = {
 };
 
 /** Individual assignments. Add a student number to `submitted` once their PDF is in public/reports/. */
-export const assignments: Assignment[] = [{ number: 1, title: "Assignment 1", submitted: ["75539","75205", "73984", "72815"] }];
+export const assignments: Assignment[] = [
+  {
+    number: 1,
+    title: "Assignment 1",
+    submitted: ["75539", "75205", "73984", "72815"],
+  },
+];
 
 /** File naming convention: public/reports/assignment<N>-<student number>.pdf */
 export const assignmentFile = (assignment: number, studentNumber: string) => ({
   href: base(`/reports/assignment${assignment}-${studentNumber}.pdf`),
-  preview: base(`/reports/previews/assignment${assignment}-${studentNumber}-1.jpg`),
+  preview: base(
+    `/reports/previews/assignment${assignment}-${studentNumber}-1.jpg`,
+  ),
 });
 
 export type LogoVersion = {
