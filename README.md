@@ -1,6 +1,13 @@
 # Interação Pessoa-Máquina: Grupo 03
 
-Website for the **Interação Pessoa-Máquina (IPM)** course at NOVA FCT, 2026/27. It collects our group's work on **Pack&Sun**, a mobile app that helps people pack for a trip: a personalised checklist, the weather at the destination and a travel agenda in one place.
+Our group's work for the **Interação Pessoa-Máquina (IPM)** course at NOVA FCT, 2026/27, on **Pack&Sun**: a mobile app that helps people pack for a trip, with a personalised checklist, the weather at the destination and a travel agenda in one place.
+
+This repository has two parts:
+
+| Part | Where | What it is |
+|---|---|---|
+| **Website** | this folder (root) | The project's site, with every report and assignment: **[gmbrib.github.io/IPM_Project](https://gmbrib.github.io/IPM_Project/)** |
+| **App** | [`app/`](app/) | The functional prototype (stage 4): an Expo / React Native app. See [Running the app](#-running-the-app-functional-prototype) |
 
 **Team:** Dinis Santos (72815), Guilherme Ribeiro (75539), Joana Neves (75205), Rodrigo Loução (73984)
 **Lab class:** P1 · **Professor:** Teresa Romão
@@ -15,6 +22,11 @@ All PDFs are in **[`public/reports/`](public/reports/)**:
 |---|---|
 | [`G_03_stage1.pdf`](public/reports/G_03_stage1.pdf) | Stage 1: problem, target users, project goal, competitors |
 | [`G_03_stage2.pdf`](public/reports/G_03_stage2.pdf) | Stage 2: problem, users, tasks, scenarios, interviews |
+| [`G_03_stage3.pdf`](public/reports/G_03_stage3.pdf) | Stage 3: sketches, paper prototype, storyboards, briefing, scenarios, test feedback |
+| [`G_03_stage4.pdf`](public/reports/G_03_stage4.pdf) | Stage 4: functional prototype (how to run it, briefing, test scenarios, features, incomplete parts, tools). Source: [`G_03_stage4.docx`](public/reports/G_03_stage4.docx) |
+| [`assignment1-72815.pdf`](public/reports/assignment1-72815.pdf) | Individual Assignment 1: Dinis |
+| [`assignment1-73984.pdf`](public/reports/assignment1-73984.pdf) | Individual Assignment 1: Rodrigo |
+| [`assignment1-75205.pdf`](public/reports/assignment1-75205.pdf) | Individual Assignment 1: Joana |
 | [`assignment1-75539.pdf`](public/reports/assignment1-75539.pdf) | Individual Assignment 1: Guilherme |
 | `previews/` | Images of each PDF's first two pages, used for the hover preview on the site. |
 
@@ -23,6 +35,34 @@ On the website, group reports appear in the **Reports** section and individual a
 File names follow a fixed pattern, which the site relies on:
 - Group reports: `G_03_stage<N>.pdf`
 - Individual assignments: `assignment<N>-<student number>.pdf`
+
+---
+
+## 📱 Running the app (functional prototype)
+
+The app is in [`app/`](app/). It needs **Node.js 20.19+** and, to try it on a phone, the **Expo Go** app with the phone on the same Wi-Fi as the computer.
+
+```bash
+cd app
+npm install        # first time only
+npx expo start     # scan the QR code with Expo Go, or press "w" to open it in the browser
+```
+
+If the phone is on a different network, use `npx expo start --tunnel`.
+
+`npx expo start` also runs the app's small server: accounts, shared trips and bags are saved on the computer running it (`app/server-data/db.json`, not in git).
+
+**Demo accounts** (one button each on the login screen; the password is in [`app/src/data/demo.ts`](app/src/data/demo.ts)):
+
+| Account | Starts with |
+|---|---|
+| `teresa.romao@email.pt` | The three test-scenario trips from the stage 4 report: Oslo (14–16 Dec 2026), Paris (22–26 Mar 2027) and Madrid (7–9 May 2027) |
+| `rui@email.pt` | No trips: Teresa invites him with a code ("Convidar" → "Entrar com código") |
+| `pedro@email.pt` | No trips, same as Rui |
+
+To start again from this data: Perfil → "Repor dados de demonstração".
+
+More detail (folders, server, roles, checks before committing) is in [`app/README.md`](app/README.md).
 
 ---
 
@@ -43,13 +83,17 @@ npm run preview  # serve the built dist/ locally
 
 ```
 .
+├── app/                       # 📱 the Pack&Sun app (Expo / React Native): see app/README.md
+├── docs/
+│   └── PLANO_DESENVOLVIMENTO.md # the app's development plan (decisions, screens, phases)
+│
 ├── index.html                 # HTML entry: loads the Google Fonts (Rubik Dirt + Rubik) and src/main.tsx
 ├── package.json               # scripts and dependencies
 ├── vite.config.ts             # Vite config (React plugin)
 ├── tsconfig.json              # TypeScript config
 │
 ├── public/                    # served as-is at the site root (/reports/..., /members/...)
-│   ├── reports/               # 📄 all report PDFs, plus previews/ (generated images)
+│   ├── reports/               # 📄 all report PDFs (and the stage 4 .docx), plus previews/ (generated images)
 │   ├── members/               # team photos used in the Equipa section
 │   ├── logo/                  # the logo's versions, in order (logo-v1.jpg … logo-v4.jpg)
 │   └── img/                   # logo and other images
@@ -140,7 +184,10 @@ Section texts are in the components under `src/components/sections/`. Names, num
 
 ## 🛠️ Stack
 
+**Website:**
 - [React 19](https://react.dev) + TypeScript
-- [Vite](https://vite.dev) for dev server and build
+- [Vite](https://vite.dev) for dev server and build, published on GitHub Pages
 - Plain CSS Modules (no UI framework). The person and the robot are drawn with CSS only, with no images.
 - Fonts: [Rubik Dirt](https://fonts.google.com/specimen/Rubik+Dirt) (headings) and [Rubik](https://fonts.google.com/specimen/Rubik) (text), from Google Fonts
+
+**App:** Expo (SDK 58), React Native and TypeScript, with Expo Router, NativeWind, Zustand, React Hook Form + Zod, and Open-Meteo for the weather. The full list is in the stage 4 report (section 5.3).

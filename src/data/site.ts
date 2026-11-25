@@ -69,7 +69,8 @@ export const members: Member[] = [
 const stageTopics: Record<number, { topics: string[]; pages: number }> = {
   1: { topics: ["Problema", "Utilizadores", "Objetivo"], pages: 2 },
   2: { topics: ["Utilizadores", "Tarefas"], pages: 3 },
-  3: { topics: ["Protótipo", "Testes", "Feedback"], pages: 7 }, 
+  3: { topics: ["Protótipo", "Testes", "Feedback"], pages: 7 },
+  4: { topics: ["Protótipo funcional", "Cenários", "Briefing"], pages: 6 },
 };
 
 export const stages: Stage[] = [1, 2, 3, 4, 5, 6].map((n) => {
