@@ -1,7 +1,6 @@
 # Pack&Sun: app
 
 App móvel do projeto de IPM (Grupo 03). Expo + React Native + TypeScript, estilos com NativeWind (Tailwind).
-Plano completo: [`../docs/PLANO_DESENVOLVIMENTO.md`](../docs/PLANO_DESENVOLVIMENTO.md).
 
 ## Correr
 

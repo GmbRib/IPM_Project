@@ -1,4 +1,4 @@
-// Domain model for Pack&Sun (see docs/PLANO_DESENVOLVIMENTO.md §4).
+// Domain model for Pack&Sun.
 // Dates are ISO strings so everything serialises as-is: days are 'yyyy-MM-dd',
 // times 'HH:mm', timestamps full ISO.
 

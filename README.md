@@ -84,8 +84,7 @@ npm run preview  # serve the built dist/ locally
 ```
 .
 ├── app/                       # 📱 the Pack&Sun app (Expo / React Native): see app/README.md
-├── docs/
-│   └── PLANO_DESENVOLVIMENTO.md # the app's development plan (decisions, screens, phases)
+├── docs/                      # working documents (e.g. the stage 5 heuristic evaluation)
 │
 ├── index.html                 # HTML entry: loads the Google Fonts (Rubik Dirt + Rubik) and src/main.tsx
 ├── package.json               # scripts and dependencies
